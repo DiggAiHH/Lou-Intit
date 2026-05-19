@@ -315,3 +315,24 @@ Wenn eine Session crasht (Cowork stürzt ab, Context overflow, Model-Switch):
 5. CK sagt "weiter" oder gibt neue Richtung.
 
 Wenn die letzten Run-Logs widersprüchlich sind, in `VERSTAENDNIS_LUECKEN.md` schauen — letzte offene `Q<N>:` ist meist der Bruch.
+
+## § 14 Fork-Workflow als Notfall-Push (ohne Collaborator-Access)
+
+Wenn `git push origin <branch>` mit "Permission denied" antwortet und Collaborator-Status nicht in 5 Min besorgt werden kann:
+
+1. Auf GitHub: Upstream-Repo öffnen → "Fork".
+2. Lokal: `git remote add fork <fork-url>`.
+3. `git push fork <branch>` (pro Branch).
+4. Auf GitHub: PR aus Fork → Upstream öffnen.
+5. Operator (mit Push-Access auf Upstream) mergt im Upstream-Repo.
+
+Skript für mehrere Branches:
+```bash
+for b in feat/a feat/b feat/c; do git push fork $b; done
+gh pr create --repo upstream/repo --head fork:<branch>
+```
+
+**Vorteil:** keine Wartezeit auf Collaborator-Status, kein Verlust von Commits.
+**Nachteil:** PRs gehen aus Fork-Branch, Reviewer-UI ist etwas anders.
+
+*Quelle: JoBetes-Sync 2026-05-19 (M05 in Zentrale-DiggAi-Bank).*
