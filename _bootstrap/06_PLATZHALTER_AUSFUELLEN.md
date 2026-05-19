@@ -48,7 +48,7 @@ Diese Felder fragt Opus selbst mit `AskUserQuestion` zur richtigen Zeit. Du kann
 | `{{TELEFONNUMMER}}` | Mails | Wie oben |
 | `{{ANSCHRIFT_VOLL}}` | BfArM-Antrag | Bei BfArM-Template |
 | `{{RECHTSFORM}}` | Einzelunternehmer / GmbH / UG | BfArM + Anwalts-Mail |
-| `{{EMAIL}}` | Korrespondenz-Email | Bei externer Mail (Default: DiggAIPrakt@gmail.com) |
+| `{{EMAIL}}` | Korrespondenz-Email | Bei externer Mail (Default: DiggAi@tutanota.de) |
 | `{{TITEL}}` | "Dr. med." / "M.Sc." | Mails |
 | `{{ORGANISATION}}` | Praxis-/Firmen-Name | Mails |
 | `{{INTENDED_PURPOSE_3_5_SAETZE}}` | BfArM-Klassifizierung | BfArM-Template |
@@ -85,7 +85,7 @@ Schnelldurchlauf, ~30 Sekunden:
 - [ ] Mindestens die 4 Pflicht-Platzhalter aus § 1 oben in `00_SYSTEM_PROMPT_BOOTSTRAP.md` § 1 ersetzt
 - [ ] Ralph-URL im 03er-File noch aktuell: `https://github.com/snarktank/ralph` ✅
 - [ ] Caveman-URL im 03er-File noch aktuell: `https://github.com/JuliusBrussee/caveman` ✅
-- [ ] CK-Email-Default (`DiggAIPrakt@gmail.com`) prüfen — anders falls anderes Projekt-Email
+- [ ] Owner-Email-Default (`DiggAi@tutanota.de`) prüfen — anders falls anderes Projekt-Email
 - [ ] Repo lokal initialisiert (`git init`) ODER bestehendes Repo ist gecloned
 - [ ] Neuer Cowork-Tab mit **Opus 4.7** als Modell (NICHT Sonnet — der ist günstiger, aber für Bootstrap-Phase ungeeignet)
 
@@ -126,7 +126,7 @@ Nach Phase 0.7 (Commit & Push) hat dein Repo:
 
 - ✅ Komplettes Skelett (alle Verzeichnisse, `.gitignore`, `LICENSE`)
 - ✅ `CLAUDE.md`, `AGENTS.md`, `progress.txt`, `VERSTAENDNIS_LUECKEN.md`
-- ✅ `{{PROJEKT_NAME}}_MASTER.md` mit erstem CK-Pareto-3
+- ✅ `{{PROJEKT_NAME}}_MASTER.md` mit erstem Owner-Pareto-3
 - ✅ Ralph + Caveman installiert
 - ✅ Erstes PRD in `tasks/prd-<slug>.md` + `prd.json`
 - ✅ Erstes Run-Log in `memory/runs/`

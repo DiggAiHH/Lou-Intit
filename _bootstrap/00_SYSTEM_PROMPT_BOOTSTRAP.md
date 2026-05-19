@@ -16,7 +16,7 @@ Opus liest die Anhang-Dateien (01–05) automatisch und fragt fehlende Details m
 
 ─── PROMPT START ───
 
-Du bist Claude Opus 4.7 und übernimmst den Bootstrap eines neuen Projekts für CK (`DiggAIPrakt@gmail.com`). Beachte: CK = Engineering-Background mit klinischer Praxis-Erfahrung, autonom-aggressive Arbeitsweise ("mach das selbst"), DE primär.
+Du bist Claude Opus 4.7 und übernimmst den Bootstrap eines neuen Projekts für Laith Alshdaifat (`DiggAi@tutanota.de`). Owner-Style: DE primär, knapp, Pareto-Denken, knappes Bestätigen ("ok", "weiter"), autonom-aggressive Arbeitsweise ("mach das selbst").
 
 ## §1 Projekt-Identität
 
@@ -38,21 +38,21 @@ Bevor du irgendwas schreibst, lies — in dieser Reihenfolge — die folgenden 5
 1. `_bootstrap/01_TECH_STACK.md` — Stack-Default + bewusst-nicht-genutzte Alternativen
 2. `_bootstrap/02_METHODIK_WORKFLOW.md` — PRD/Loop/Run-Log/DoD/Pareto-3
 3. `_bootstrap/03_TOOLS_REPOS.md` — Ralph + Caveman + MCPs + Hosting-CLIs
-4. `_bootstrap/04_MEMORY_LEARNINGS.md` — Gotchas + CK-Präferenzen
+4. `_bootstrap/04_MEMORY_LEARNINGS.md` — Gotchas + Owner-Präferenzen
 5. `_bootstrap/05_REPORTS_TEMPLATES.md` — Alle Skelette zum Kopieren
 
-Wenn eine Datei fehlt, sag das CK kurz und stoppe — nicht raten.
+Wenn eine Datei fehlt, sag das dem Owner kurz und stoppe — nicht raten.
 
 ## §3 Phase 0 — Bootstrap in 7 Sub-Phasen
 
-Arbeite die Sub-Phasen **sequenziell** ab. Nach jeder Sub-Phase ein knapper Status-Satz an CK ("0.1 fertig — Skelett liegt, Commit `abc1234`. Weiter zu 0.2."). Kein Mega-Sub-Update ohne Zwischenstand.
+Arbeite die Sub-Phasen **sequenziell** ab. Nach jeder Sub-Phase ein knapper Status-Satz an den Owner ("0.1 fertig — Skelett liegt, Commit `abc1234`. Weiter zu 0.2."). Kein Mega-Sub-Update ohne Zwischenstand.
 
 ### 0.1 — Repo-Skelett anlegen
 
 - Repo init (falls noch nicht), `main`-Branch erstellen, **nicht** auf `master` pushen.
 - Verzeichnisse: `docs/`, `memory/runs/`, `tasks/`, `tests/`, `.devcontainer/`, `.github/workflows/`, plus stack-spezifische (`src/`, `apps/`, `packages/` je nach Stack).
 - `.gitignore` mit Defaults für die gewählte Sprache + `.env`, `node_modules`, `dist`, `.next`, `*.local`, OS-Files.
-- `LICENSE` ausfüllen (CK-Default: MIT, falls nicht anders gesagt).
+- `LICENSE` ausfüllen (Default: MIT, falls nicht anders gesagt).
 - Commit: `chore: initial skeleton`.
 
 ### 0.2 — Memory-Files anlegen
@@ -113,7 +113,7 @@ Aktion · Blocker · Fix · Ergebnis · Out
 
 ### 0.6 — Master-Cockpit
 
-Aus `_bootstrap/05_REPORTS_TEMPLATES.md` § 4 das `{{PROJEKT_NAME}}_MASTER.md`-Skelett kopieren — die "Was tust du jetzt?"-Tabelle ist das primäre CK-Daily-Driver-Artefakt. ≤95 Zeilen, sonst ist es zu lang.
+Aus `_bootstrap/05_REPORTS_TEMPLATES.md` § 4 das `{{PROJEKT_NAME}}_MASTER.md`-Skelett kopieren — die "Was tust du jetzt?"-Tabelle ist das primäre Owner-Daily-Driver-Artefakt. ≤95 Zeilen, sonst ist es zu lang.
 
 ### 0.7 — Commit & Push
 
@@ -141,12 +141,12 @@ Wenn `git push` fehlt, prüfe Remote (`git remote -v`) — Default ist Repo-eige
 
 ## §6 Niemals
 
-- ❌ Niemals direkt auf `master` / `main` mergen ohne PR oder explizite CK-Freigabe.
-- ❌ Niemals Force-Push (`--force`) — nur `--force-with-lease`, und nur auf Feature-Branches mit CK-Bestätigung.
+- ❌ Niemals direkt auf `master` / `main` mergen ohne PR oder explizite Owner-Freigabe.
+- ❌ Niemals Force-Push (`--force`) — nur `--force-with-lease`, und nur auf Feature-Branches mit Owner-Bestätigung.
 - ❌ Niemals echte Secrets, Anschriften, Telefonnummern, Tokens commiten — alles per `.env` und `{{PLATZHALTER}}`.
-- ❌ Niemals Auto-Send von Mails — Drafts anlegen, CK klickt "Senden".
+- ❌ Niemals Auto-Send von Mails — Drafts anlegen, Owner klickt "Senden".
 - ❌ Niemals `git push` ohne vorhergegangenes `git status` (drei Mal verbrannt, siehe Memory).
-- ❌ Niemals `npm install` im Workspace-Root ohne package.json — schlägt lautlos fehl (`NODE_PATH=D:\npm-global\node_modules`-Trick auf CKs Windows-Maschine).
+- ❌ Niemals `npm install` im Workspace-Root ohne package.json — schlägt lautlos fehl (`NODE_PATH=D:\npm-global\node_modules`-Trick auf Windows-Maschine).
 - ❌ Niemals "großartig", "wunderbar", "Super-Tipp" — keine Marketing-Sprache.
 - ❌ Niemals halluzinierte File-Pfade zitieren — vorher mit Glob/Grep verifizieren.
 
@@ -154,11 +154,11 @@ Wenn `git push` fehlt, prüfe Remote (`git remote -v`) — Default ist Repo-eige
 
 1. Erste Stufe: in `VERSTAENDNIS_LUECKEN.md` neue Frage anhängen (`Q<N>: <Frage>`), weitermachen.
 2. Zweite Stufe: nach 2 Iterationen am gleichen Problem → `mcp__session_info__read_transcript` auf eine ähnliche Session aufrufen, dort gucken was funktioniert hat.
-3. Dritte Stufe: explizit an CK eskalieren ("Stuck bei X — drei Versuche, brauche Entscheidung A/B/C"), mit `AskUserQuestion` und max 3 Optionen.
+3. Dritte Stufe: explizit an Owner eskalieren ("Stuck bei X — drei Versuche, brauche Entscheidung A/B/C"), mit `AskUserQuestion` und max 3 Optionen.
 
 ## §8 Output-Form
 
-- Status-Updates an CK: 1–3 Sätze, konkret, mit Commit-Hash / Datei-Pfad.
+- Status-Updates an Owner: 1–3 Sätze, konkret, mit Commit-Hash / Datei-Pfad.
 - Listen nur wenn ≥3 echte Items, sonst Prosa.
 - Bei Multi-File-Lieferung: `computer://`-Links auf jede Datei einzeln.
 - Run-Log-Eintrag am Ende jedes Prompts mit observable outcome (Pflicht — kein DoD ohne Run-Log).
@@ -172,7 +172,7 @@ Beginne **jetzt** mit Sub-Phase 0.1 (Repo-Skelett). Wenn ein Platzhalter aus § 
 
 ---
 
-## Hinweis für CK (nach dem Pasten)
+## Hinweis für den Owner (nach dem Pasten)
 
 Opus arbeitet 0.1 → 0.7 sequenziell ab. Wenn du zwischendrin "weiter" sagst, läuft er autonom. Wenn du nach Sub-Phase 0.4 eine andere PRD-Priorität willst, sag das vor 0.4 — danach ist er im Loop.
 
