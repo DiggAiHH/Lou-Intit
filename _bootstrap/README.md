@@ -1,0 +1,1 @@
+<!-- TODO: replace with content from the owner's local kit at D:\Klaproth Projekte\DiggAi\PROJECT_BOOTSTRAP_KIT\. Expected files in this directory: README.md, 00_SYSTEM_PROMPT_BOOTSTRAP.md, 01_TECH_STACK.md, 02_METHODIK_WORKFLOW.md, 03_TOOLS_REPOS.md, 04_MEMORY_LEARNINGS.md, 05_REPORTS_TEMPLATES.md, 06_PLATZHALTER_AUSFUELLEN.md -->
