@@ -354,3 +354,93 @@ Zum direkten Kopieren in das `CLAUDE.md` neuer Projekte (im Block `## Memory / L
 - Knappes Bestätigen ("ok", "weiter")
 - Niemals "großartig", "wunderbar", "Super-Tipp" — keine Marketing-Sprache
 ```
+
+### G15 — Browser drosselt JS in Background-Tab
+
+Polling-basiertes UI funktioniert im Foreground-Tab, hängt im Background-Tab. Chrome/Safari drosseln Background-JS auf ≥1 min Intervall (Battery-Saving).
+
+**Symptom:** Realtime-Chat/Notifications "verzögert sich", User wartet, Tab in Vordergrund — alles da.
+**Fix kurzfristig:** UI-Hinweis "Tab im Vordergrund halten für Live-Updates".
+**Fix mittelfristig:** WebSocket statt Polling, oder Service-Worker mit Push-Notifications.
+**Verifikation:** DevTools → Performance → "Throttling: Background" simulieren.
+
+### G16 — Service-Worker cached kaputten Build nach Deploy
+
+Nach Deploy mit Bug serviert der SW weiter den alten Build. Reload zeigt weiterhin kaputten Stand, selbst Hard-Refresh hilft nicht.
+
+**Schnell-Diagnose:** Inkognito-Tab öffnen — funktioniert es da, ist's der SW-Cache.
+**Fix:** `skipWaiting()` + `clientsClaim()` im SW, Cache-Version-Bump bei jedem Build via Git-SHA in `manifest.json`. Notfall für User: Browser → Site-Daten löschen.
+
+### G17 — Bash-Sandbox kann mit HYPERVISOR_SERVICE_ERROR ausfallen
+
+`mcp__workspace__bash` antwortet `HYPERVISOR_SERVICE_ERROR`. Alle `gh`/`git`/`curl`-Operationen aus der Sandbox brechen.
+
+**Fix:** Cowork-Tab schließen + neu öffnen (Sandbox wird neu provisioniert). **Besser:** Statt `workspace__bash` direkt `mcp__Desktop_Commander__*` benutzen — DC läuft direkt auf dem Operator-PC, kein Sandbox-Risiko, gh/git funktionieren wie nativ. Vor jeder bash-abhängigen Phase Smoke-Test: `echo ready`.
+
+### G18 — web_fetch Provenance ist URL-strikt, nicht Domain-basiert
+
+Auch wenn URLs im Content eines früheren `web_fetch`-Results stehen, sind sie nicht automatisch in der Provenance. Folge-Fetches werden mit "URL not in provenance set" abgelehnt.
+
+**Fix:** Operator pastet URL explizit in nächster Nachricht. **Besser:** Chrome-MCP (`mcp__Claude_in_Chrome__navigate` → `get_page_text`) oder Desktop-Commander `gh api`/`curl` statt web_fetch — beide haben keinen Provenance-Check.
+
+---
+
+## §X — Anhang aus JoBetes-Sync 2026-05-19
+
+> Diese Einträge stammen aus dem JoBetes-Sync vom 19. Mai 2026. **Reviewer-Aktion beim Merge:** in die thematisch passenden Sektionen oben einsortieren (G15-G18 zu § 1 Gotchas, W11-W14 zu § 2 Was funktioniert hat). Alternativ: als eigene Sektion "Sync-Anhänge" stehen lassen, dann ist die Herkunft der Einträge nachvollziehbar.
+
+### W11 — Mock-Fallback für externe API-Provider
+
+Vision/LLM-Provider liefert deterministisch dieselbe Antwort, wenn API-Key fehlt. Dev-Build ohne Cloud-API, Test-Suite ohne Mocking-Library-Overhead.
+
+```ts
+export async function callProvider(args) {
+  if (!process.env.PROVIDER_API_KEY) {
+    console.warn('[MOCK] no API key, returning deterministic mock');
+    return mockResponse(args);
+  }
+  return realCall(args);
+}
+```
+
+**Vorteil:** Test-Suite läuft ohne API-Keys, Dev-Build ohne Cloud-Zugriff, CI ohne Secret-Leak-Risiko.
+**Risiko:** In Production prüfen, dass API-Key gesetzt ist — sonst läuft Mock live.
+
+### W12 — shared-schemas-Package als FE/BE-Single-Source-of-Truth
+
+`packages/shared-schemas/` exportiert alle Zod-Schemas. Frontend nutzt für Form-Validation, Backend für Request-Body-Validation, beide via `z.infer` denselben TS-Type.
+
+```ts
+// packages/shared-schemas/patient.ts
+export const PatientSchema = z.object({ name: z.string().min(1), ... });
+export type Patient = z.infer<typeof PatientSchema>;
+
+// apps/web/PatientForm.tsx
+import { PatientSchema } from '@<projekt>/shared-schemas';
+
+// apps/api/routes/patients.ts
+import { PatientSchema } from '@<projekt>/shared-schemas';
+```
+
+Kein Schema-Drift mehr möglich.
+
+### W13 — Triple-Output für Konzept-Docs (.md + .html + ASCII .txt)
+
+Bei jedem strategischen Doc drei Versionen:
+- `.md` für GitHub/IDE-Editierung.
+- `.html` für Browser-Screenshot (Stakeholder-Versand).
+- ASCII `.txt` für maschinen-getrennten Ground-Truth (Diff-friendly, kein Renderer-Overhead, canonical für Tool-zu-Tool-Übergaben).
+
+CK-Brand-Regel: gilt projektübergreifend für Konzepte/Architekturen.
+
+### W14 — Operator-passiv-Pattern via Desktop Commander
+
+Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht git/push/deploy direkt via `mcp__Desktop_Commander__*` auf dem Operator-PC. Vorteile gegenüber `mcp__workspace__bash`:
+
+- Kein Sandbox-Risiko (HYPERVISOR-Fehler etc.).
+- Native gh/git/curl-Zugriff mit existierender Auth.
+- Direktzugriff auf Operator-Dateisystem ohne Mount-Pfad-Übersetzung.
+
+Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
+
+---
