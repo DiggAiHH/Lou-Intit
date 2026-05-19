@@ -16,5 +16,5 @@ A reusable scaffold for bootstrapping **Claude Opus 4.7** onto new projects in a
 
 ---
 
-Owner: CK (<DiggAIPrakt@gmail.com>)  
+Owner: Laith Alshdaifat (<DiggAi@tutanota.de>)  
 Last updated: 2026-05-19

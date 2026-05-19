@@ -1,8 +1,8 @@
 # Lou-Intit — Project Bootstrap Kit (Master Index)
 
-Ein wiederverwendbarer Bootstrap-Kit für CK (`DiggAIPrakt@gmail.com`). Pro neuem Projekt einmal clonen, 4 Platzhalter füllen, in Opus 4.7 pasten — Phase 0 läuft autonom.
+Ein wiederverwendbarer Bootstrap-Kit für Laith Alshdaifat (`DiggAi@tutanota.de`). Pro neuem Projekt einmal clonen, 4 Platzhalter füllen, in Opus 4.7 pasten — Phase 0 läuft autonom.
 
-**Stand:** 2026-05-19 · **Owner:** CK · **Default-Stack:** React 19 + Vite + Express 5 + Prisma 6 + Postgres 16 / Fly.io + Netlify + Neon · **Methodik:** Ralph + Caveman + Run-Log-Disziplin.
+**Stand:** 2026-05-19 · **Owner:** Laith Alshdaifat · **Default-Stack:** React 19 + Vite + Express 5 + Prisma 6 + Postgres 16 / Fly.io + Netlify + Neon · **Methodik:** Ralph + Caveman + Run-Log-Disziplin.
 
 ---
 
@@ -13,14 +13,15 @@ Ein wiederverwendbarer Bootstrap-Kit für CK (`DiggAIPrakt@gmail.com`). Pro neue
 | [`README.md`](README.md) | Repo-Front-Page (Copilot-generiert) | Beim ersten Anschauen des Repos |
 | [`CLONE_AND_USE.md`](CLONE_AND_USE.md) | 4-Schritte-Onboarding | Bei jedem neuen Projekt |
 | [`INDEX.md`](INDEX.md) | **Diese Datei** — Navigation + Reading-Order | Wenn du verloren bist |
+| [`CROSS_PROJECT_PROMPT.md`](CROSS_PROJECT_PROMPT.md) | Paste-Ready-Prompt für JEDES neue Projekt | Bei neuem PC / Cowork-Account |
 | [`LICENSE`](LICENSE) | MIT | — |
 | [`.gitignore`](.gitignore) | Node + IDE + OS Ignores | Wird beim Clonen mitkopiert |
 | [`_bootstrap/README.md`](_bootstrap/README.md) | Kit-eigener Index + 3 Nutzungs-Varianten | Vor Phase 0 |
 | [`_bootstrap/00_SYSTEM_PROMPT_BOOTSTRAP.md`](_bootstrap/00_SYSTEM_PROMPT_BOOTSTRAP.md) | **Der Prompt** zum Pasten in Opus 4.7 | Schritt 3 von Onboarding |
-| [`_bootstrap/01_TECH_STACK.md`](_bootstrap/01_TECH_STACK.md) | Default-Stack + Was-NICHT + CK-Stack-Tabelle | Phase 0.1 (Skelett) |
+| [`_bootstrap/01_TECH_STACK.md`](_bootstrap/01_TECH_STACK.md) | Default-Stack + Was-NICHT + Stack-Tabelle | Phase 0.1 (Skelett) |
 | [`_bootstrap/02_METHODIK_WORKFLOW.md`](_bootstrap/02_METHODIK_WORKFLOW.md) | PRD/Loop/Run-Log/DoD/Pareto-3 | Phase 0.2 + jeder Loop |
 | [`_bootstrap/03_TOOLS_REPOS.md`](_bootstrap/03_TOOLS_REPOS.md) | Ralph + Caveman + MCPs + Hosting-CLIs | Phase 0.3 (Install) |
-| [`_bootstrap/04_MEMORY_LEARNINGS.md`](_bootstrap/04_MEMORY_LEARNINGS.md) | 14 Gotchas + Was-funktioniert + CK-Style | Immer wenn was schiefgeht |
+| [`_bootstrap/04_MEMORY_LEARNINGS.md`](_bootstrap/04_MEMORY_LEARNINGS.md) | 14 Gotchas + Was-funktioniert + Owner-Style | Immer wenn was schiefgeht |
 | [`_bootstrap/05_REPORTS_TEMPLATES.md`](_bootstrap/05_REPORTS_TEMPLATES.md) | 13 Skelette: CLAUDE.md, AGENTS.md, Run-Log, PRD, Mails | Wenn du was generieren musst |
 | [`_bootstrap/06_PLATZHALTER_AUSFUELLEN.md`](_bootstrap/06_PLATZHALTER_AUSFUELLEN.md) | Was du füllen musst, was Opus selbst fragt | Vor Cowork-Tab-Öffnung |
 
@@ -111,13 +112,13 @@ Der Kit ist ein **lebendiges Artefakt**. Wenn du in einem Projekt einen neuen Go
 
 ## §5 Bekannte Issues
 
-- **`05_REPORTS_TEMPLATES.md` §1 (CLAUDE.md-Template):** Innere Code-Fence-Backticks haben Backslash-Artefakte (`\`\`\`bash` statt ````bash`). Inhalt ist korrekt und lesbar, nur die Code-Fence-Rendering ist suboptimal. Fix beim nächsten Kit-Update.
+- **`05_REPORTS_TEMPLATES.md` §1 (CLAUDE.md-Template):** Innere Code-Fence-Backticks haben Backslash-Artefakte. Inhalt ist korrekt und lesbar, nur die Code-Fence-Rendering ist suboptimal. Fix beim nächsten Kit-Update.
 
 ---
 
 ## §6 Cross-Project-Pattern (für Multi-Project-Setup)
 
-CK arbeitet an mehreren Projekten parallel (DiggAi, Jobetes, Wundzentrum, etc.). Jedes Projekt clont diesen Kit. Wenn ein Projekt einen Lessons-Learned generiert, der für die anderen relevant ist:
+Laith arbeitet an mehreren Projekten parallel. Jedes Projekt clont diesen Kit. Wenn ein Projekt einen Lessons-Learned generiert, der für die anderen relevant ist:
 
 1. In Lou-Intit als PR oder direkt-commit hinzufügen
 2. In den anderen Projekten: `cd _bootstrap && git pull origin main` (falls _bootstrap als Submodule oder separate Clone)
@@ -136,7 +137,7 @@ git add _bootstrap && git commit -m "chore: update _bootstrap to latest"
 
 ---
 
-## §7 Quick-Reference (für CK)
+## §7 Quick-Reference
 
 | Aktion | Datei / Pfad |
 |---|---|
@@ -152,7 +153,7 @@ git add _bootstrap && git commit -m "chore: update _bootstrap to latest"
 
 ## §8 Kontakt + Sicherheit
 
-- **Owner:** CK · `DiggAIPrakt@gmail.com`
+- **Owner:** Laith Alshdaifat · `DiggAi@tutanota.de`
 - **Repo-Sichtbarkeit:** Public — keine echten Secrets, Anschriften oder Tokens commiten
 - **Lizenz:** MIT (LICENSE-Datei)
 - **GitHub:** `https://github.com/DiggAiHH/Lou-Intit`
