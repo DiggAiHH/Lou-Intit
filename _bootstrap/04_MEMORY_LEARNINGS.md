@@ -444,3 +444,34 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+
+## §X — Anhang aus Daily-Sync 2026-06-15
+
+> Generische Engineering-Learnings aus dem Sammel-Sync 2026-06-15 (Fenster 2026-05-19…06-14). **Reviewer-Aktion beim Merge:** in §1 (Gotchas) / §2 (Was funktioniert) einsortieren oder als Sync-Anhang belassen. Nur projekt-übergreifend gültig — keine Domain-Regulatorik. Bank-Referenzen: G16/G18/G24, W13/W16.
+
+### G — "V8 Zone Allocation failed" / Node-OOM ist oft Disk-Full, nicht RAM
+
+Lokale `vite build` / `tsc` / `vitest` crashen mit "V8 Zone Allocation failed" bzw. Heap-OOM (exit 134), auch mit `--max-old-space-size`. Häufige echte Ursache: System-Disk fast voll (<2 GB frei), NICHT Node-RAM.
+
+**Fix:** Vor jedem Node-OOM-Debug zuerst Disk prüfen. Platz schaffen; `TMP`/`TEMP` auf ein Volume mit Platz umlenken (`set TMP=D:\tmp`).
+
+### G — Docker Compose `--project-name` → isoliertes Netz → 502/Outage
+
+Deploy mit falschem `--project-name` (z.B. aus veralteter Runbook-Zeile) legt den App-Container in ein isoliertes `<name>_<network>`; Edge/DB/Redis hängen am Label des App-Verzeichnisses → 502/Crashloop. Hat in der Praxis einen ~11-Min-Prod-Outage verursacht.
+
+**Fix:** `--project-name` = App-Verzeichnisname (das Label, das DB/Redis/Edge tragen). Notfall: `docker network connect <netz> <container>`. Deploy-Kommandos gegen die LAUFENDEN Stack-Labels verifizieren, nie blind aus dem Runbook kopieren.
+
+### G — git push hängt non-interaktiv (Windows-Credential-Manager / SSH-Passphrase)
+
+`git push` (HTTPS) hängt im Agent-Hintergrund auf dem GUI-Credential-Manager; token-in-URL + `gh auth git-credential` hängen ebenfalls. SSH-Push hängt an der Passphrase. Der Agent darf Credentials nicht eingeben.
+
+**Fix:** `gh api`/`gh workflow` nutzen den Keyring (funktionieren). Für Push: PowerShell+Token, oder den ~90s-Pre-Push-Hook abwarten statt voreilig als "Hang" zu killen. Credential-gebundene Endaktion an den Operator übergeben.
+
+### W — Node-fetch-Smoke-Test statt Browser/Playwright
+
+Reiner Node-`fetch`-Test mit CookieJar (Set-Cookie-Parse + Rebuild) + CSRF-Token-Roundtrip deckt alle Backend-prüfbaren Flows ab — kein Browser-Heap-OOM, Sekunden statt Minuten, reproduzierbar. Als Smoke-Vorlage persistieren. Spart Playwright für reine API-Flows komplett ein.
+
+### W — Ehrliche Verifikation über das Mögliche statt fingierter Beweise
+
+Wenn Browser/Playwright/Docker fehlen: über HTTP-Statuscodes + a11y-Tree (`get_page_text`) + JS-DOM-Reads + Netzwerk-/Konsolen-Logs verifizieren — und die nicht testbaren Teile ehrlich als "blockiert/skipped" dokumentieren statt Ergebnisse zu fingieren. Höheres Signal, kein falsches Grün, Operator-Vertrauen bleibt intakt.

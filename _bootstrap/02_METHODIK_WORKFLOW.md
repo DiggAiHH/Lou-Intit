@@ -336,3 +336,17 @@ gh pr create --repo upstream/repo --head fork:<branch>
 **Nachteil:** PRs gehen aus Fork-Branch, Reviewer-UI ist etwas anders.
 
 *Quelle: JoBetes-Sync 2026-05-19 (M05 in Zentrale-DiggAi-Bank).*
+
+
+## § 15 — Multi-Agent-Sync-Patterns (Daily-Sync 2026-06-15)
+
+> Generische Workflow-Patterns aus dem Sammel-Sync 2026-06-15. Bank-Referenzen: M08, M10, W14.
+
+**Concurrent-Agent-Git-Hygiene.** Schreiben mehrere Agents parallel am selben Tree:
+- NIE `git add -A` / `git add .` — nur kohärente Dateien by-name (`git commit -- <file>`).
+- HEAD direkt VOR dem Commit re-checken (Fremd-Commits wandern den Branch weiter).
+- Fremd-Residue dem Operator zur Einzel-Entscheidung flaggen, nicht blind mitcommitten.
+
+**Session-Limit-Handoff.** Vorgänger-Agent bricht oft vor Gates/Commit am Session-Limit ab. Etabliertes Muster: Folge-Agent übernimmt den Working-Tree, fährt die Gates selbst, committet (mit by-name-Staging + HEAD-Recheck). Working-Tree-Übergabe ist explizit Teil des Workflows, kein Fehlerfall.
+
+**Adversarial Multi-Agent-Review mit Selbst-Verifikation.** Review fan-out (z.B. 4 Dimensionen × 2 Verifier). Brechen Review-Agents am Limit mit unverifizierten Findings ab, verifiziert der Haupt-Agent die Top-/mehrfach-gemeldeten Findings selbst im Code. Grundregel: **"unwiderlegt" ≠ "wahr"** — nur verifizierte Findings werden gefixt.
