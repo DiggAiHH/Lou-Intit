@@ -444,3 +444,69 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+
+## §X — Anhang aus Daily-Sync 2026-06-16
+
+> Diese Einträge stammen aus dem DiggAiHH-Daily-Sync vom 16. Juni 2026 (Quelle: diggai-anamnese, Bank-Commit 4095195). **Reviewer-Aktion beim Merge:** in die thematisch passenden Sektionen oben einsortieren (G19-G23 zu § 1 Gotchas, W15 zu § 2 Was funktioniert hat, F12-F13 zu § 3 Anti-Patterns). Alle Einträge sind projekt-unabhängig (kein Domänen-/Medizin-Bezug).
+
+### G19 — vitest-4: fs/fs-promises-Mock braucht importActual-Spread
+
+Unter vitest 4 wirft `vi.mock('fs'|'fs/promises', () => ({ … }))` ohne Default-Export einen Collection-Fehler ("No default export on fs mock") → die ganze Test-Datei lädt nicht (0 Tests). Nach dem Fix greift der ESM-Mock zudem bei `readdir`/`access` nicht → realer fs → ENOENT.
+
+```ts
+vi.mock('fs/promises', async () => {
+  const actual = await vi.importActual('fs/promises');
+  return { ...actual, readFile: vi.fn(), writeFile: vi.fn() };
+});
+```
+
+**Fix:** importActual spreaden (Default-Export kommt so mit); readdir/access-lastige Pfade explizit überschreiben statt auf den Modul-Mock zu vertrauen.
+
+### G20 — Gitignored `prisma/migrations/` + CI `migrate deploy` = Schema-Änderungen kommen nie live
+
+Steht `prisma/migrations/` in `.gitignore`, während CI/Deploy `prisma migrate deploy` nutzt, deployt das nur committete Migrationen — also keine. Neue Spalten/Tabellen erreichen die Prod-DB nie, ohne sichtbaren Fehler. Zweiter Footgun: nach Schema-Edit ist der generierte Client stale → tsc rot auf neuen Feldern.
+
+**Fix:** `prisma/migrations/` aus `.gitignore` nehmen + Migrationen committen (bestehende DB: Baseline via `migrate diff` → `migrate resolve --applied`). Nach jedem Schema-Edit `npx prisma generate` (offline). Drift-Preview read-only via `db pull --print` + `migrate diff --script`.
+
+### G21 — PowerShell-ExecutionPolicy blockt `npm.ps1` → npm über cmd-Shell
+
+Auf Windows blockiert die PowerShell-ExecutionPolicy `npm.ps1`; `npm run …` aus einer PS-Session schlägt fehl.
+
+**Fix:** npm über die cmd-Shell fahren (Desktop Commander startet cmd direkt). Ergänzt G01 (cmd statt PowerShell).
+
+### G22 — Linux-Sandbox-Mount desynct von Windows-seitigen Edits
+
+Nach Edits auf der Windows-Seite liefert die Cowork-Linux-Sandbox veraltete/abgeschnittene Datei-Kopien (Stale-JSON, tsc-Syntaxfehler in unveränderten Zeilen) und korrumpiert den git-Zustand ("bad signature", stale `.git/index.lock`, CRLF-Phantom-Diffs). Ein scheinbarer Harness-Fehler kann reiner Stale-Stand sein, kein echter Versions-Skew.
+
+**Fix:** Build/Test/Commit/Push über Desktop Commander DIREKT auf Windows; Quelle per Read-Tool gegenlesen; git-Index reparieren mit `del .git\index` + `git reset`. Ergänzt G17 (Sandbox-Ausfall).
+
+### G23 — win32-node_modules-Bindings in der Linux-Sandbox nicht lauffähig
+
+Sind node_modules auf einem Windows-Host installiert, fehlen in der Linux-Sandbox die nativen Linux-Bindings (rolldown/vitest-4, esbuild, Prisma-Engine) → `vite build`, `vitest`, `npx prisma` laufen in der Sandbox NICHT.
+
+**Fix:** Build/Test/Prisma über Desktop Commander auf Windows; Logik-/Krypto-Kern harness-unabhängig per Node verifizieren (siehe W15).
+
+### W15 — Harness-unabhängige Verifikation via Node `--experimental-strip-types`
+
+Wenn vitest unbrauchbar ist (z.B. win32-Bindings in der Sandbox, G23), den Logik-/Krypto-Kern über ein wiederverwendbares Node-Skript verifizieren, das die ECHTEN TS-Module direkt importiert und gegen native APIs (z.B. WebCrypto) prüft.
+
+```
+node --experimental-strip-types scripts/verify-zk-crypto.ts
+```
+
+Lief 26/26 grün, völlig unabhängig vom Test-Harness; als `npm run`-Script + doppelklickbares `.cmd` verankert. Ergänzt das Smoke-Test-Pattern.
+
+### F12 — `npm audit fix --force` (mehrfach) → SemVer-Major-Bumps außerhalb der Range
+
+Mehrfaches `npm audit fix --force` spielt SemVer-Major-Bumps ein (z.B. socket.io, node-cron, concurrently), teils AUSSERHALB der package.json-Range → Runtime-Bruchrisiko, schwer reviewbarer Lock-Drift.
+
+**Fix:** `--force` meiden; Audit-Fixes einzeln + im Range prüfen. Schaden zurücksetzen via `git checkout -- package.json package-lock.json` + sauberes `npm install`.
+
+### F13 — Preflight (Run-Log + Once-Guard) im Multi-Agent-Tree übersprungen → fremde untracked Arbeit überschrieben
+
+Eine Parallel-Session codet ohne Preflight los und überschreibt via Write Dateien einer anderen Session. Nie committete (untracked) Stände sind unwiederbringlich verloren; zusätzlich entstehen Duplikate.
+
+**Fix:** Vor jedem Schreiben im geteilten Tree zwingend Preflight (letzte Run-Logs lesen + once-guard). Bei heißem Tree nur NEUE Dateien unter eindeutigen Pfaden anlegen, bestehende minimal-invasiv erweitern. Untracked = nicht wiederherstellbar. Ergänzt G12 (parallele Sessions teilen Context nicht).
+
+---
