@@ -444,3 +444,34 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+
+## Anhang — Daily-Sync 2026-06-17 (aggregiert aus Zentrale-DiggAi-Bank)
+
+Generische Learnings des Tages, die für jedes Projekt mit React + Prisma + i18n gelten. Volltext + Quellen in der Bank (`KNOWLEDGE/`).
+
+### G32 — Lokale DB down (Prisma `P1001`) → manuelle idempotente SQL-Migration
+
+Ist die Dev-DB nicht erreichbar (`P1001`), schlägt `prisma migrate dev` komplett fehl. `npx prisma generate` braucht KEINE DB und entsperrt tsc (Client-Typen für neue Modelle). Migration von Hand als idempotentes SQL (`prisma/migrations_manual/<datum>_<name>.sql` mit `CREATE TABLE IF NOT EXISTS`) schreiben und vor dem Deploy per `psql $DATABASE_URL -f …` auf der Ziel-DB anwenden.
+
+### G33 — Globale Print-Regel `.fixed{display:none}` löscht Druck-Overlays
+
+Ein `@media print { .fixed { display:none } }`-Reset blendet jedes absichtlich gedruckte Overlay aus, das per Tailwind-`fixed` positioniert ist. Druckbare Overlays über eine EIGENE Klasse + eigene `@media print`-Regeln positionieren, nicht über die generische `fixed`-Utility.
+
+### G34 — i18n-Keys am DE-Quellstring → Edit wirft Locales auf Fallback
+
+Keyen die Übersetzungen auf dem DE-Quelltext, wirft jede Änderung am DE-String alle Nicht-DE-Locales still auf DE-Fallback. Verhalten/Validierung ändern, ohne den übersetzten String anzufassen; muss der Text geändert werden, alle Locales in EINEM Schritt nachziehen.
+
+### G35 — Exakte `where`-Assertion bricht bei Umgebungs-Filtern → `objectContaining`
+
+Tests, die ein Prisma-`where` exakt matchen, brechen, sobald der Code laufzeit-/umgebungsabhängig Filter ergänzt (z.B. Prod-only-Tenant-Filter). `expect.objectContaining({…})` auf die stabilen Pflichtfelder asserten.
+
+### W19 — „Grün-by-mirror" bei toter lokaler Toolchain
+
+Läuft die Toolchain lokal nicht (native Bindings fehlen), neue Funktionalität additiv 1:1 an bereits CI-getestete Primitive delegieren und den neuen Test als Spiegel des bestehenden Primitiven-Tests schreiben. Der Host-Lauf bestätigt nur noch.
+
+### M11 — Subagent-Absenz-Claims sind oft False-Negatives
+
+Meldet ein Subagent „X existiert nicht / fehlt im Code", vor dem Handeln selbst gegenprüfen (grep/Read der Pfade). Falsche Absenz-Aussagen führen zu Doppel-Implementierung oder falschen Außen-Aussagen.
+
+*Quelle: Zentrale-DiggAi-Bank `daily-log/2026-06-17.md` + `KNOWLEDGE/` (G32–G35, W19, M11), Ursprung diggai-anamnese.*
