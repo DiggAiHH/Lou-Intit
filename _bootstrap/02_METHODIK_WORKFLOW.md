@@ -336,3 +336,14 @@ gh pr create --repo upstream/repo --head fork:<branch>
 **Nachteil:** PRs gehen aus Fork-Branch, Reviewer-UI ist etwas anders.
 
 *Quelle: JoBetes-Sync 2026-05-19 (M05 in Zentrale-DiggAi-Bank).*
+
+
+## § 15 Bauen unter toter Toolchain + Subagent-Absenz-Claims (Daily-Sync 2026-06-17)
+
+Zwei Methodik-Muster aus dem v2-Rückkanal-Bau (diggai-anamnese), wenn die lokale Toolchain (vitest/tsc) nicht ausführbar ist:
+
+**„Grün-by-mirror" (W19 in der Bank).** Neue Funktionalität bewusst additiv bauen und 1:1 an bereits CI-getestete Primitive delegieren (Krypto nur über getestete Keypair-Primitive, neue Route 1:1 an bestehende Relay-Route gespiegelt). Den neuen Test als Spiegel des bestehenden Primitiven-Tests schreiben. So bleibt die Konfidenz hoch, obwohl lokal nichts läuft — der spätere Host-Lauf bestätigt nur noch, statt erstmals zu prüfen.
+
+**Subagent-Absenz-Claims gegenprüfen (M11 in der Bank).** Die NEGATIVE Aussage eines Subagents („Feature/Datei/Pfad fehlt") ist genauso fehleranfällig wie ein falsches Finding — und teurer, weil sie zu Doppel-Implementierung oder falschen Außen-Aussagen führt. Vor dem Handeln auf eine gemeldete Absenz immer selbst im Code verifizieren (grep/Read der genannten Pfade). Komplement zum Adversarial-Review-Grundsatz „unwiderlegt ≠ wahr".
+
+*Quelle: Zentrale-DiggAi-Bank `daily-log/2026-06-17.md` (W19, M11), Ursprung diggai-anamnese.*
