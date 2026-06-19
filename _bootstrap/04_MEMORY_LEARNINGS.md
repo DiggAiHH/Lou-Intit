@@ -444,3 +444,39 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+
+## Anhang — Daily-Sync 2026-06-19 (diggai-anamnese)
+
+> Einträge aus dem diggai-anamnese-Sync vom 19. Juni 2026 (React-Test-Harness + i18n-Mock). **Reviewer-Aktion beim Merge:** G19–G21 in §1 Gotchas, W15 in §2 einsortieren — oder als Sync-Anhang stehen lassen (Herkunft nachvollziehbar). Volltext in Zentrale-DiggAi-Bank (G36–G38, W20).
+
+### G19 — react-i18next-Mock muss `t`/`i18n` als STABILE Referenz liefern
+
+Ein globaler `vi.mock('react-i18next', …)`, der pro `useTranslation()`-Aufruf ein frisches `{ t, i18n }` zurückgibt, treibt Komponenten in eine Endlos-Render-Schleife (jeder Render = neue Referenz → `useEffect`/`useMemo`-Dependency feuert → Render → …). Ergänzt G05 (i18next-Falle).
+
+```ts
+vi.mock('react-i18next', () => {
+  const t = (k: string, d?: string) => d || k;        // EINMAL erzeugen
+  const i18n = { language: 'de', changeLanguage: vi.fn() };
+  return { useTranslation: () => ({ t, i18n }), initReactI18next: { type: '3rdParty', init: vi.fn() } };
+});
+```
+
+### G20 — `NODE_ENV=production` an Test-Prozess vererbt → "React.act is not a function"
+
+Startet ein Deploy-/`JETZT_LIVE_*`-Skript oder CI-Step die Tests mit `NODE_ENV=production`, lädt React den Prod-Build (ohne Test-API `act`) → `TypeError: React.act is not a function`, obwohl die Versionen stimmen.
+
+```ts
+// vitest.config.ts, ganz oben — vor defineConfig:
+if (process.env.NODE_ENV === 'production') process.env.NODE_ENV = 'test';
+```
+
+### G21 — jsdom hat kein IndexedDB → `fake-indexeddb/auto`
+
+Tests, die IndexedDB-Persistenz ausführen (Key-/PIN-Store, Offline-Queue), brechen unter jsdom mit `indexedDB is not defined`. Fix: `fake-indexeddb` als devDependency + Side-Effect-Import `import 'fake-indexeddb/auto';` (in der Test-Datei oder global im `test-setup.ts`). Gleiche Familie wie der jsdom-localStorage-Stub-Bedarf.
+
+### W15 — Fake-Timers: `await vi.advanceTimersByTimeAsync(ms)` statt `advanceTimersByTime` + `waitFor`
+
+Bei debounce-/timeout-getriebenem Code unter Fake-Timers `await vi.advanceTimersByTimeAsync(ms)` nutzen — flusht die Microtask-Queue zwischen Timer-Callback und Promise-Resolve, das async-Ergebnis ist nach dem `await` bereits gerendert. `waitFor` ist dann überflüssig und kann unter Fake-Timers sogar hängen (es pollt über echte, stehende Zeit).
+
+---

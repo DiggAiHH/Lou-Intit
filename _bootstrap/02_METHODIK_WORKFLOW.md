@@ -336,3 +336,21 @@ gh pr create --repo upstream/repo --head fork:<branch>
 **Nachteil:** PRs gehen aus Fork-Branch, Reviewer-UI ist etwas anders.
 
 *Quelle: JoBetes-Sync 2026-05-19 (M05 in Zentrale-DiggAi-Bank).*
+
+
+## §15 Pre-Deploy-Gate (`test:critical` + Checkliste)
+
+Statt vor jedem Deploy die langsame, OOM-anfällige Voll-Test-Suite zu fahren (die dann übersprungen wird → Regressionen rutschen durch), ein kuratiertes Subset der wirklich kritischen Flows als eigenes Script definieren und als Pflicht-Gate vor den Deploy hängen:
+
+```jsonc
+// package.json
+"scripts": {
+  "test:critical": "vitest run src/**/*.critical.test.ts src/**/__smoke__/*"
+}
+```
+
+Flankiert von einer schriftlichen `docs/PRE_DEPLOY_CHECKLIST.md` (manuelle Punkte, die kein Test abdeckt: Env-Vars gesetzt, Migration angewendet, Smoke-URL grün). Schnell genug, um wirklich bei JEDEM Deploy zu laufen.
+
+**Smoke-Timeouts großzügig** wählen (z. B. 30 s → 60 s): Cold-Start (§-Gotcha Fly.io) und DNS-Flip nach dem Deploy erzeugen sonst False-Negatives.
+
+*Quelle: diggai-anamnese-Sync 2026-06-19 (M12 in Zentrale-DiggAi-Bank).*
