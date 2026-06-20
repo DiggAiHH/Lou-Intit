@@ -444,3 +444,50 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+
+## §X — Anhang aus Daily-Sync 2026-06-20
+
+> Diese Einträge stammen aus dem zentralen Daily-Sync vom 20. Juni 2026 (Quelle: `DiggAiHH/Zentrale-DiggAi-Bank`, Commit `8bc94eb`). **Reviewer-Aktion beim Merge:** in die thematisch passenden Sektionen oben einsortieren (G39/G40 zu den Gotchas, W21/W22 zu "Was funktioniert hat") oder als Sync-Anhang stehen lassen. Alle vier sind stack-generisch (kein Domain-/Medizin-Bezug).
+
+### G39 — Per-Minute-Rate-Limit zu streng → 429 für legitime Schnell-Nutzer
+
+Ein als Spam-Schutz gedachter per-Minute-Rate-Limiter (z.B. `express-rate-limit`) auf einem Save-/Antwort-Endpoint war zu niedrig (30/min). In einem Formular mit vielen kurzen Feldern erzeugt ein zügiger, ehrlicher Nutzer leicht >30 Saves/min → 429, der Ausfüll-Fluss bricht ab. Das Limit traf reale Nutzer, nicht Angreifer.
+
+**Fix:** Limit am realistischen Worst-Case eines legitimen Nutzers ausrichten, nicht am theoretischen Minimum (hier 30→120/min). Interaktive Auto-Save-UIs gegen den schnellsten ehrlichen Nutzer testen (kurze Felder = viele Saves), nicht gegen den Durchschnitt.
+
+### G40 — Strikte Server-Formatvalidierung + Client schickt Stand-in → stiller 400
+
+Ein Endpoint validierte ein Feld strikt als 64-Zeichen-SHA-256-Hex; der Client schickte als "Hash" einen Platzhalter (z.B. eine Bild-DataURL) → jeder POST scheiterte mit 400, nur als Toast sichtbar, nichts wurde gespeichert.
+
+**Fix:** Den geforderten Wert clientseitig im exakten Format erzeugen. Browser-nativer SHA-256-Hex ohne Lib:
+
+```ts
+async function sha256Hex(input: string): Promise<string> {
+  const bytes = new TextEncoder().encode(input);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+```
+
+Erzwingt ein Server ein exaktes Format (Länge/Hex/Regex), den Contract clientseitig erfüllen — "etwas Ähnliches" scheitert zu 100 % und wirkt fälschlich wie ein Server-Bug.
+
+### W21 — Split-/Multi-Field-Input: pro Feld sofort validieren, Cross-Field-Checks gaten
+
+Bei in Teilfelder zerlegten Inputs (Tag/Monat/Jahr) jedes Feld sofort + feldspezifisch validieren, sobald es vollständig getippt ist — statt pauschalem "ungültig" erst am Ende. Cross-Field-Checks (unmöglicher Tag wie 30.02., Zukunftsdatum) erst NACH Einzelfeld-Plausibilität prüfen, sonst Doppelmeldungen. Fehlerfeld via `aria-invalid` + Rahmenfarbe markieren.
+
+```ts
+// unmöglichen Kalendertag per Date-Roundtrip erkennen:
+const d = new Date(yy, mm - 1, dd);
+const impossible = d.getFullYear() !== yy || d.getMonth() !== mm - 1 || d.getDate() !== dd;
+```
+
+### W22 — ETA aus feingranularem Fortschritt, nicht aus groben Meilensteinen
+
+In langen mehrstufigen Flows (Wizard/Onboarding/Umfrage) "Noch ~X Min." aus dem Gesamt-Item-Fortschritt ableiten, nicht nur aus verbleibenden Kapiteln — sonst wirkt die Anzeige innerhalb eines Kapitels minutenlang "eingefroren" und verliert Vertrauen.
+
+```ts
+const restMin = overallPercent >= 100 ? 0 : Math.max(1, Math.round(totalMin * (100 - overallPercent) / 100));
+```
+
+---

@@ -29,3 +29,5 @@ desktop.ini
 .cache/
 tmp/
 .commitmsg.txt
+
+.prbody.tmp
