@@ -444,3 +444,43 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+## §X — Anhang aus Daily-Sync 2026-06-23
+
+> Sechs stack-breit generische Eintraege aus dem Sync vom 23. Juni 2026 (Quelle: diggai-anamnese, Zero-Knowledge-Migration der Nutzer-Flows). **Reviewer-Aktion beim Merge:** in die passenden Sektionen oben einsortieren (G19-G21 zu Gotchas, W15-W17 zu „Was funktioniert hat"). Bank-IDs in Klammern fuer Rueckverweis. Ein E2E-spezifischer Eintrag (Bank W26, Offline-Selbst-Entschluesseler) blieb bewusst Bank-only, da nur fuer ZK-/E2E-Produkte relevant.
+
+### G19 — Globaler 401-Interceptor leert Session mitten im legitimen Gast-/Public-Flow (Bank G41)
+
+Ein global feuernder HTTP-Response-Interceptor ruft bei JEDEM 401 `clearSession()` + Redirect auf Start. In einem anonymen, mehrstufigen Gast-Flow wirft ein beilaeufiger Hintergrund-401 (z.B. abgelaufener Refresh-Token-Call) den Nutzer direkt nach einem kritischen Schritt (z.B. Bestaetigung/Unterschrift) zurueck auf die Landing-Page — fertige Arbeit weg.
+
+**Fix:** Interceptor scopen: `clearSession`/Token-Removal NUR auf dem authentifizierten App-Pfad; praefixierte Public-Routen und anonyme Sessions als „in-flow" erkennen und vom Redirect ausnehmen. Gast-Flow inkl. erzwungenem Hintergrund-401 mitten im Flow end-to-end testen.
+
+### G20 — Globale Tenant-/Context-Middleware blockt Capability-/Token-Route vor dem Handler (Bank G42)
+
+Eine globale Middleware, die Kontext (Tenant/Mandant) aus Header/Subdomain erzwingt, lehnt einen selbst-authentifizierenden Capability-Endpoint (Identitaet entsteht erst im Handler aus der Ressourcen-UUID) mit z.B. `TENANT_NOT_FOUND` ab, bevor der Handler laeuft.
+
+**Fix:** Solche Middleware fuer Routen, die ihre Identitaet selbst mitbringen (UUID/Token = Bearer), per Whitelist/Bypass opt-out machen.
+
+### G21 — Anonymer, sessionloser POST-Endpoint muss explizit von CSRF ausgenommen werden (Bank G43)
+
+Ein global aktiver CSRF-Schutz (Token / Double-Submit-Cookie) blockt einen neuen anonymen POST-Endpoint, der keine Cookie-Session und damit kein Token hat -> jeder legitime anonyme POST scheitert.
+
+**Fix:** Anonymen Endpoint explizit von CSRF ausnehmen (keine Cookie-Session = nichts zu faelschen) und stattdessen ueber Rate-Limit, Payload-/Groessen-Validierung und ggf. Origin-/Captcha-Checks absichern.
+
+### W15 — Capability-URL (nicht-erratbare UUID = Bearer) fuer konto-losen Cross-Device-Wiedereinstieg (Bank W23)
+
+Damit ein Nutzer OHNE Konto einen Vorgang geraeteuebergreifend fortsetzt: die vollstaendige Ressourcen-UUID als Bearer-Capability nutzen (`GET /resource/:uuid/reopen`, Besitz der UUID = Autorisierung). Desktop starten, Status-Link am Handy oeffnen, weitermachen — kein Login.
+
+**Absichern:** UUID v4 (genug Entropie), GET-idempotent, jeder Zugriff rate-limited + auditiert. Loest genau die Middleware-Falle aus G20 -> beides zusammen lesen.
+
+### W16 — Querschnitts-Concern (z.B. Verschluesselung) an der Transport-/API-Client-Grenze isolieren (Bank W24)
+
+Beim Nachruesten eines Querschnitts-Concerns (E2E-Krypto, Serialisierung) die gesamte Logik im API-Client/Transport-Layer kapseln: Komponenten bleiben bei Klartext-Typen, der Client puffert lokal und verschluesselt erst beim Absenden. Getestete Screens bleiben unveraendert -> keine UX-Regression, minimale Review-Flaeche.
+
+**Anti-Pattern:** den Concern durch jede Komponente faedeln (fehleranfaellig, schwer testbar).
+
+### W17 — Bewaehrte mehrstufige Komponente generalisieren statt durch ein simpleres Bespoke-Formular ersetzen (Bank W25)
+
+Wenn mehrere Faelle „nur ein einfaches Formular" zu brauchen scheinen: pruefen, ob eine bereits erprobte mehrstufige Komponente sie per Props (Typ/Titel/Grund) abdeckt. Generalisieren (1 Komponente, N Konfigurationen) schlaegt Forken (N divergierende Varianten) bei UX-Paritaet, Test- und Wartungsaufwand.
+
+---
