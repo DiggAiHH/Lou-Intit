@@ -336,3 +336,13 @@ gh pr create --repo upstream/repo --head fork:<branch>
 **Nachteil:** PRs gehen aus Fork-Branch, Reviewer-UI ist etwas anders.
 
 *Quelle: JoBetes-Sync 2026-05-19 (M05 in Zentrale-DiggAi-Bank).*
+
+## §Y — Methodik-Anhang aus Daily-Sync 2026-06-30
+
+### Outward-facing Deploy-Gate (Human-in-the-Loop)
+
+Änderungen mit neuen öffentlichen Endpoints + nutzerseitiger UI (outward-facing): lokal bauen, testen, verifizieren (type-check, lint, Tests, Build, Compliance-Gate) — aber den eigentlichen Push/Deploy auf Owner-Freigabe gaten und im Run-Log als "NICHT deployed — mit Owner abstimmen" markieren.
+
+**Regel:** reversibel & intern → autonom abschließen; outward-facing / schwer reversibel → bauen + verifizieren, aber Freigabe einholen statt selbst live zu schalten.
+
+*Quelle: diggai-anamnese 2026-06-30 (M23 in Zentrale-DiggAi-Bank).*

@@ -444,3 +444,39 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+## §X — Anhang aus Daily-Sync 2026-06-30
+
+Generische Frontend-/Tooling-Lessons aus diggai-anamnese (Zentrale-DiggAi-Bank G73–G76, M23). Gelten projektübergreifend.
+
+### G19 — Debounce-Such-UI: Leerzustand blitzt im Debounce-Loch auf
+
+Eine Suche mit Mindestlänge (z.B. ≥3 Zeichen) setzt `canSearch` sofort true, die Query ist aber debounced (z.B. 350 ms). Im Loch ist `showNoResults` kurz true → die "keine Treffer"-Karte erscheint ~1 s, BEVOR gesucht wurde.
+
+**Fix:** `hasResolved`-Flag (beim Tippen false, im `finally` der Suche true). Leerzustand nur bei `showNoResults && hasResolved`. Regel: Leerzustände an "mindestens einmal aufgelöst" koppeln, nicht an die Eingabe-Länge.
+
+*Quelle: diggai-anamnese 2026-06-30 (G73 in Zentrale-DiggAi-Bank).*
+
+### G20 — React-Router-Hooks crashen Komponenten-Tests ohne Router-Wrapper
+
+Sobald `useNavigate`/`useParams` in eine Komponente kommen, sind bestehende grüne Unit-Tests ohne Router-Provider rot ("useNavigate() may be used only in the context of a Router").
+
+**Fix:** Test-Render in `<MemoryRouter>` wrappen (Render-Helper, ggf. `initialEntries`). Die roten Tests sind Harness-Drift, kein Produkt-Bug.
+
+*Quelle: diggai-anamnese 2026-06-30 (G74 in Zentrale-DiggAi-Bank).*
+
+### G21 — Commit-Message mit Sonderzeichen bricht die Shell → `git commit -F -`
+
+`git commit -m "..."` mit Klammern oder `1)`/`2)` wird vom Shell-Parser zerrissen → Commit schlägt fehl oder Message zerhackt.
+
+**Fix:** Message via `git commit -F -` Heredoc (oder `-F <datei>`). Regel: mehrzeilige/sonderzeichen-haltige Messages nie inline via `-m`.
+
+*Quelle: diggai-anamnese 2026-06-30 (G75 in Zentrale-DiggAi-Bank).*
+
+### G22 — `window.confirm()` ist in mobilen Webviews unzuverlässig
+
+Bestätigungs-Flow über `window.confirm()` wirkt auf Mobile / im Webview tot — der Button reagiert scheinbar nicht, weil der native Dialog unterdrückt wird.
+
+**Fix:** Inline-Bestätigung (eigener State + Buttons) statt `window.confirm()`/`window.alert()`. Keine nativen Browser-Dialoge in Webview-/Mobile-Flows.
+
+*Quelle: diggai-anamnese 2026-06-30 (G76 in Zentrale-DiggAi-Bank).*
