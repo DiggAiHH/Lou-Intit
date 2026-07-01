@@ -444,3 +444,11 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+## §Anhang aus Daily-Sync 2026-07-01
+
+Generische, projekt-agnostische Learnings aus dem täglichen Knowledge-Sync (Quelle: `DiggAiHH/Zentrale-DiggAi-Bank`, Bank-Commit `6b3f32c`). Ursprung: diggai-anamnese.
+
+- **i18n-Paritäts-Gate ≠ Coverage-Gate (G77).** Keys, die nur per Inline-`defaultValue` in `t('foo', { defaultValue })` existieren und nie in der Quell-Locale (`translation.json`) registriert sind, rendern in JEDER Sprache in der Quellsprache. Ein Paritäts-Gate, das nur Locale↔Locale vergleicht, merkt das NIE (kein Source-Scan). Fix: Gate um einen Code-Scan aller `t('…')`-Keys erweitern; `defaultValue` als Code-Smell behandeln.
+- **Pro-Item-Status braucht einen Pro-Item-Marker (F16).** Erledigungs-Status einzelner Vorgänge NIE aus der Existenz einer geteilten Ressource ableiten (`hasResource(entity)` → „Vorgang erledigt"). Bei mehreren offenen Vorgängen derselben Entität kippen sonst ALLE fälschlich auf „erledigt". Fulfillment explizit tracken (z.B. `deliveredIds`-Set, nur nach erfolgreicher Aktion).
+- **„Nebenläufig" ≠ „fremd" (M24).** In orchestrierten Multi-Agent-Sessions sehen Commits der EIGENEN delegierten Sub-Agenten aus wie ein fremder Prozess. Vor jedem defensiven Reconcile/Rollback zuerst attribuieren: `git log --oneline`, Author + Message gegen die eigene Agenten-Liste. Ergänzt die by-name/HEAD-Recheck-Hygiene (W14) und die Per-Hunk-Technik (`git diff` → `git apply --cached`, wenn eine Datei eigene + fremde Hunks vermischt).

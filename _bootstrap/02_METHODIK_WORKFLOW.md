@@ -336,3 +336,11 @@ gh pr create --repo upstream/repo --head fork:<branch>
 **Nachteil:** PRs gehen aus Fork-Branch, Reviewer-UI ist etwas anders.
 
 *Quelle: JoBetes-Sync 2026-05-19 (M05 in Zentrale-DiggAi-Bank).*
+
+## Nebenläufige Commits attribuieren, bevor man sie als „fremd" behandelt (M24)
+
+In orchestrierten Multi-Agent-Sessions hinterlassen die eigenen delegierten Sub-Agenten Commits, die im geteilten Working-Tree wie ein fremder/rivalisierender Prozess wirken. Das führt zu unnötigem defensiven Reconcile-Aufwand und riskiert falsche Rollbacks.
+
+**Regel:** Bei einem unerwarteten nebenläufigen Commit ZUERST attribuieren (`git log --oneline`, Author/Committer + Commit-Message gegen die eigene Agenten-Liste), erst bei nachweislich fremdem Ursprung defensiv reconcilen. „Nebenläufig" ≠ automatisch „fremd".
+
+*Quelle: Daily-Sync 2026-07-01 (M24 in Zentrale-DiggAi-Bank).*
