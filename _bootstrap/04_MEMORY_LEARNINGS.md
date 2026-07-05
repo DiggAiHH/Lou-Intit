@@ -444,3 +444,19 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+## §X — Anhang aus Daily-Sync 2026-07-05
+
+> Drei projektübergreifende Gotchas aus dem Daily-Sync vom 5. Juli 2026 (Quellen: wanderwell, diggai-anamnese). **Reviewer-Aktion beim Merge:** in § 1 Gotchas einsortieren oder als Sync-Anhang stehen lassen. Bank-Referenzen: G84, G85, G86.
+
+### G-DS0705a — `python`/`pip` zeigen auf ein Agent-venv, nicht das System-Python
+
+`pip install --user <pkg>` landet im User-Site — ein venv ignoriert User-Site per Default, sieht das Paket also nie: `No module named …` trotz „Successfully installed". Vor jedem Install prüfen, welcher Interpreter läuft: `python -c "import sys; print(sys.executable)"`. Zeigt er in ein venv → OHNE `--user` installieren. `--user` nur für ein echtes System-Python. (Bank G84)
+
+### G-DS0705b — Git-Hook `Exec format error` ist Schicht 1 von 3
+
+`git commit` bricht mit `.husky/pre-commit: Exec format error` ab (CRLF + kein Shebang). Danach Schicht 2 (Hook-Deps wie `lint-staged` fehlen im frisch ausgecheckten Worktree) und Schicht 3 (unpinned Tool-Schema-Range `^2.0.0` zieht neuere CLI → Schema-Drift). Fix: Hook mit `#!/bin/sh` + LF committen; Root-Deps gezielt nachziehen (`pnpm --filter <root-pkg> install --ignore-scripts`); Schema-Drift per eingebautem Migrator beheben + Version pinnen. Hooks NIE mit `--no-verify` umgehen — jede Schicht einzeln fixen. (Bank G85)
+
+### G-DS0705c — Test-only Global-Accessor ist in Prod `undefined`
+
+Ein DB-Accessor wie `(globalThis as any).__client`, den NUR Tests setzen, ist in Produktion `undefined` → jeder Laufzeit-Zugriff crasht, während Unit-Tests grün bleiben (sie mocken exakt diesen Global). Kann monatelang latent kaputt bleiben, weil kein Test den ungemockten Pfad durchläuft. Test-Injektion braucht IMMER einen Prod-Fallback im selben Ausdruck: `(globalThis.__client ?? realClientImport)`. Mind. ein E2E/Smoke muss den echten Pfad treffen. (Bank G86)
