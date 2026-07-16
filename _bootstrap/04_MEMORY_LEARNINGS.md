@@ -444,3 +444,26 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+## §X — Anhang aus Daily-Sync 2026-07-16 (diggai-anamnese)
+
+Generische, projekt-übergreifende Learnings aus dem Tages-Sync. Volltext + Quellen in der Zentrale-DiggAi-Bank (`KNOWLEDGE/…`) — hier nur als Bootstrap-Pointer, die Bank bleibt Source-of-Truth.
+
+### Gotchas
+- **G100 (Bank) — Safari/WebKit Blob-Download stirbt still bei synchronem `revokeObjectURL()` nach `a.click()`.** Chrome verzeiht es, Safari nicht → verzögert revoken (10 s) + sichtbarer Fallback-Download-Link; alle Download-Muster scannen.
+- **G101 (Bank) — Python `print()` mit Nicht-ASCII bricht auf cp1252-Windows-Konsole mitten im Lauf** → partielle Schreibvorgänge. ASCII-only-Status + Skript idempotent + Nutzdaten mit `encoding='utf-8'`.
+- **G102 (Bank) — React-`memo`-Wirksamkeit MESSEN, nicht vermuten.** DOM-Attribut-Überleben ist kein Beweis; Inline-Arrow-Props hebeln memo aus (`useCallback`); Sekundentakt-Uhr-State hoch im Baum re-rendert alles.
+- **G103 (Bank) — Test `getByRole(name)` „Found multiple elements" bei wiederholten Landing-CTAs** → Ziel per `data-testid`, die Wiederholung ist Design-Absicht, nicht der Bug.
+- **G104 (Bank) — Light-Theme-Kontrastfalle:** weißes Card-Token auf weißem Bg-Token (unsichtbar im Light, ok im Dark). Token-Paarung in BEIDEN Themes sichtprüfen.
+- **G105 (Bank) — Respawnender Hintergrund-Swarm frisst RAM über lange Suiten** → Fork-Worker-Spawn-Fail/0 MB frei. Vor langen Suiten killen, RAM-Erholung abwarten, Gates seriell.
+
+### Worked
+- **W39 (Bank) — Vulnerable Dependency dep-frei am Input mitigieren (Byte-Cap vor Parse)** statt unverifizierbarem Versions-Repin, wenn der Repin die Prod-Build-Auflösung ändert.
+- **W40 (Bank) — Private Keys als non-extractable `CryptoKey` (IndexedDB) gegen XSS-Exfil;** Decrypt-Signatur auf `JWK | CryptoKey` widen für rückwärtskompatiblen Cutover.
+
+### Methodology
+- **M25 (Bank) — IDOR/Tenant-Fix als KLASSE:** auf ALLE Geschwister-Handler derselben Datei ausdehnen + Nicht-REST-Flächen (Socket.IO/WS, Background-Worker, Cache-Keys) separat auditieren — ein REST-Audit sieht die Zwillingsfläche nicht.
+- **M26 (Bank) — Fan-out-Subagenten mit Teil-Ausfall:** nur die fehlgeschlagenen Items mit frischem Agent nachfahren, valide behalten, dann Vollständigkeits-Gate.
+- **M27 (Bank) — Autonomie-Grenze:** irreversibler, nur mit echtem Gerät verifizierbarer Krypto-/Daten-Cutover bleibt gegated; die gerät-unabhängige Teilschicht (z.B. Decrypt) darf vorgezogen werden.
+
+---
