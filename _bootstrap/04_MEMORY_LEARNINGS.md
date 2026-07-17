@@ -444,3 +444,33 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+## §X — Anhang aus Daily-Sync 2026-07-17
+
+> Diese Einträge stammen aus dem Daily-Sync vom 17. Juli 2026 (Quelle: diggai-anamnese, Läufe fable-5-01…04). Es sind projekt-übergreifend generische Learnings (Agent-Tooling, E2E/Playwright, Lint-Diagnose). **Reviewer-Aktion beim Merge:** in die thematisch passenden Sektionen oben einsortieren (G106-G108 zu §1 Gotchas, M28 zu §2 Was funktioniert hat / Methodik). IDs sind die Bank-IDs aus `Zentrale-DiggAi-Bank` (Nachvollziehbarkeit).
+
+### G106 — Agent-`StructuredOutput`/JSON-Schema: Property-Keys müssen ASCII-Identifier sein
+
+Ein Fan-out-Batch (viele Werte über einen Subagenten-Workflow) als Objekt-Schema modelliert, dessen Keys fachliche Freitext-Bezeichner mit Leerzeichen/Umlauten waren → der `StructuredOutput`-Contract lehnt solche Keys ab, ~12 Agenten scheitern mit `400`, obwohl der Task korrekt ist.
+
+**Fix:** Array-Schema `{ values: string[N] }` mit fester Länge, Reihenfolge über eine geordnete Quelldatei (Array-Index = Zuordnung). Regel: Schema-Keys = stabile ASCII-Identifier; alle variablen/menschlichen Strings gehören in die Werte, nie in die Keys. Gilt für jeden schema-getriebenen Agenten-Workflow.
+
+### G107 — Playwright `networkidle` feuert VOR dem Mount lazy-geladener Route-Chunks
+
+Bei code-gesplitteten SPAs gilt `waitUntil: 'networkidle'` als „geladen", während der lazy nachgeladene Route-Chunk noch nicht gemountet ist — Screenshots zeigen nur den Spinner, Selektoren finden nichts.
+
+**Fix:** Nicht auf Netzwerk-Ruhe warten, sondern `waitForSelector` auf ein erst nach dem Chunk-Mount sichtbares DOM-Anker-Element (oder ein expliziter Initial-Wait). Button-/CTA-Suche über breite Regex statt exaktem Text.
+
+### G108 — Playwright-WebKit (WinCairo) ist KEIN Safari-Proxy für Krypto-Feature-Proben
+
+Ein Krypto-Feature-Gate (`crypto.subtle`, X25519) sollte über Playwright-WebKit „wie Safari" verifiziert werden: Probe warf erst `TypeError` (`about:blank` = kein Secure Context, `crypto.subtle` undefined), dann `NotSupportedError` (WinCairo-Build hat kein X25519). Beides beweist NICHT echtes Safari-Verhalten.
+
+**Fix:** `SubtleCrypto`-Proben immer auf echtem `https`-Origin (Secure Context), nie `about:blank`/`file:`. Für echte Safari-Aussagen echtes Apple-WebKit (Gerät/BrowserStack). Ein `NotSupportedError` in Playwright-WebKit belegt nur, dass ein Feature-Gate im Code greift — keine Support-Aussage.
+
+### M28 — `no-unused-vars` auf einer Funktion/einem Handler ist ein Verdrahtungs-Bug-Signal
+
+Ein Kamera-Scan lief auf schwarzem Frame, weil `startCamera()` nie aufgerufen wurde — einziger Vorbote war eine `eslint no-unused-vars`-Warnung auf genau diese Funktion, als „toter Code" abgetan.
+
+**Fix:** Eine Unused-Warnung auf eine *definierte Funktion/einen Handler* (nicht nur lokale Variable) als „Feature nicht verdrahtet"-Verdacht behandeln: Call-Site suchen; existiert keine, ist das Feature tot — nicht die Warnung wegdrücken. Lint-Signal = Bug-Signal, nicht nur Kosmetik.
+
+---
