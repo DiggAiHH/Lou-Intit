@@ -444,3 +444,30 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+
+---
+
+## §Anhang — Daily-Sync 2026-07-19 (projekt-agnostische Learnings)
+
+Aus dem täglichen Knowledge-Sync in die `Zentrale-DiggAi-Bank` destilliert. Nur Learnings, die für JEDES Projekt gelten (nicht domänen-spezifisch). Volltext + Fix jeweils unter der genannten Bank-ID.
+
+**Git / Deploy (self-hosted):**
+- **G109 / M30** — Ein Repo von public auf private zu stellen ist eine Deploy-Pipeline-Änderung: ein Server-`git pull` mit inline-`ghs_`/`ghp_`-Token in der `origin`-URL bricht danach (toter/ablaufender Token). Dauerfix: read-only SSH-Deploy-Key (`git@github.com:<org>/<repo>`, `IdentitiesOnly yes`), kein ablaufendes Credential, least privilege.
+- **W41** — Wenn die Server-Git-Auth kaputt ist, `git bundle` als auth-freier Transport für einen Sofort-Deploy nutzen (`git bundle create` → `scp` → `git fetch ./bundle` + `merge --ff-only`). Kein Force, git-Metadaten bleiben konsistent.
+- **W42** — Push-Erfolg IMMER per `git fetch` + `origin/<branch> == HEAD` (SHA-Vergleich) verifizieren, nie per Wrapper-Exit-Code. Pre-Push-Suites > Timeout → Push im Hintergrund. „cannot lock ref" im geteilten Repo ist ein benignes Race — SHA prüfen, kein Retry.
+- **W44** — Eigene Änderungen aus einem geteilten Multi-Agent-Working-Tree hunk-genau isolieren: `git diff -U0` → nach präzisen EIGEN/FREMD-Markern filtern → `git apply --cached`; neue Datei-Blobs per `git hash-object -w`. Unpräzise Marker matchen Fremd-Text → per `git diff --cached` gegenprüfen.
+
+**Agent-Orchestrierung / Verifikation:**
+- **M29** — LLM-Deep-Research-Fakten (Fristen, Beträge, Existenz/Status von Programmen) vor Verwendung adversarial gegen die Primärquelle prüfen, nicht gegen eine zweite LLM-Zusammenfassung. Vorrecherche halluziniert plausibel (eingestelltes Programm als aktiv).
+- **W43** — Für einfache i18n-/Text-Fanouts dem Sub-Agent NUR die Keys geben, keine per-Locale-File-Reads verlangen → schneller und robuster gegen API-Aborts mitten im Write; das order-preserving Einsetzen macht ein deterministisches Skript.
+- **M31** — Build-Zeit-Env (`VITE_`/`NEXT_PUBLIC_`) steuert nur Client-Sichtbarkeit (in den Bundle eingebacken); Server-Runtime-Flags sind getrennt. Ein Server-Gate nie flippen, solange seine Laufzeit-Abhängigkeit (z.B. Zahlungs-Keys) fehlt — sonst 503/UX-Bruch. Deploy per Artefakt-`curl` beweisen, nicht per evtl. gecachtem Service-Worker.
+
+**Tooling-Footguns (Windows / Agent-Editor):**
+- **G111** — Manche Write/Edit-Tool-Builds verstümmeln literale `\\`- und `\uXXXX`-Escapes (einfaches `\` bleibt heil). Vor Verlass darauf mit einem Probe-String testen; im Zweifel per Python-Raw-Replace schreiben und die Byte-Sequenz gegenprüfen.
+- **G112** — `\b`-Wortgrenze macht `/\bhidden\b/` falsch-positiv auf `overflow-hidden` (Bindestrich = Wortgrenze). Klassennamen tokenweise vergleichen (`className.split(/\s+/)`), nicht per Substring-Regex.
+- **G113** — Windows-git-bash hat kein `zip`; Windows-`python` löst `/tmp` → `C:\tmp`. Archive per Python `zipfile` bauen; Windows-Pfade explizit (`pwd -W`) an Python übergeben.
+- **G110 / G115** — Windows-`vite`-Build `EPERM` (Orphan-Filelock) kann einen unvollständigen `dist` deployen (Locales → SPA-HTML) und RAM-Druck lässt `vite`-forks nicht alle Worker spawnen (Phantom-`EnvironmentTeardownError`). Orphan-Prozesse killen, `dist` hart löschen, Ergebnis per `curl` gegenprüfen.
+- **W45** — Office-Docs (pptx/docx) headless via Python-`zipfile`-Member-Substitution editieren/prüfen (nur geänderte XML-Member ersetzen, `testzip()`), wenn LibreOffice/Toolchain fehlt.
+
+*Quelle: `Zentrale-DiggAi-Bank/daily-log/2026-07-19.md` (Bank-Commit `e0d3d92`); Ursprungsprojekt diggai-anamnese.*
