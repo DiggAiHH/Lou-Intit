@@ -444,3 +444,25 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+## §Anhang — Daily-Sync 2026-07-22 (projektübergreifende Learnings)
+
+Aus der Zentrale-DiggAi-Bank (`KNOWLEDGE/*`) übernommene, für JEDES Projekt gültige Muster. Volltext + Quellen dort unter den genannten IDs.
+
+### W49 — Commit aus isoliertem Wegwerf-Worktree, wenn ein arbeitsbaum-lesendes Gate durch fremdes Parallel-WIP blockiert ist
+Liegt zu viel uncommittetes Fremd-WIP im geteilten Checkout (chirurgisches Stashen reicht nicht), in einen Wegwerf-Worktree ausweichen: `HEAD` + eigene Dateien hineinlegen, `node_modules` **und** `.husky/_` als Junction (fehlt `.husky/_`, laufen die Hooks GAR NICHT), `.env` kopieren, Hooks dort grün fahren, dann `git update-ref` + `git reset --mixed` — Fremd-WIP bleibt unangetastet.
+
+### M32 — `git update-ref <ref> <neu> <alt>` mit altem SHA als Compare-And-Swap
+Beim Vorziehen eines Branch IMMER den erwarteten alten SHA als drittes Argument mitgeben. git verschiebt die Ref nur, wenn sie noch dort steht — sonst sicherer Abbruch statt Clobbern eines Parallel-Commits. Nie erzwingen, nie den Fremd-Commit anfassen.
+
+### F17 — `z.object()` (Zod) verwirft unbekannte Keys lautlos → Config-Feld inert trotz grüner Tests
+Neues persistiertes Feld: API akzeptiert, Unit-Tests grün, aber beim Zurücklesen strippt das Schema den Key still → Feld seit Einführung wirkungslos. Fix: Schema + DTO gemeinsam nachziehen; Paritätstest, der Feldnamen aus BEIDEN Seiten parst und diff't (geparste Anzahl beidseitig assert’en, sonst dauergrün). Bei Round-Trip-Bedarf `.passthrough()`.
+
+### G117 — Vitest-Teardown-Flake: `silent` verbirgt nur die Ausgabe, `disableConsoleIntercept` ist die Wurzel
+`EnvironmentTeardownError: Closing rpc while onUserConsoleLog was pending` bei grünen Tests: `silent` unterdrückt nur die Ausgabe, Vitest fängt die Konsole weiter ab und schickt sie per RPC. Fix: `disableConsoleIntercept: process.env.PRE_PUSH === '1'`. Nie `--no-verify`, nie grüne Suites excluden. (Look-alike unter Speicherdruck ist eine andere Ursache — durch Messen trennen.)
+
+### G121 — PowerShell-Kill in einer Bash-Command-Chain killt die eigene Shell → Exit 255
+Ein `Stop-Process`/Kill in derselben Commit-Chain killt den eigenen Prozessbaum (Selbstkill) und bricht den Commit ab. Prozess-Kills NIE in die Commit-Chain mischen; per `git commit -F <datei>`/Heredoc committen und das Tool-Timeout für den langsamen (aber grünen) Hook anheben.
+
+### M33 — Cut-/„Toter-Code"-Blast-Radius per transitiver Import-Kette bestimmen
+Nicht per HTTP-Status (beweist nur „gemountet+gated", nicht „tot") und nicht per flachem Grep (verfehlt indirekte Sinks in Services). Import-Graph traversieren: welche Route erreicht tatsächlich die risikobehaftete Funktion? Die eigentliche Cut-Entscheidung per AskUserQuestion einholen statt still zu schneiden.
