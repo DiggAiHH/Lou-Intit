@@ -336,3 +336,13 @@ gh pr create --repo upstream/repo --head fork:<branch>
 **Nachteil:** PRs gehen aus Fork-Branch, Reviewer-UI ist etwas anders.
 
 *Quelle: JoBetes-Sync 2026-05-19 (M05 in Zentrale-DiggAi-Bank).*
+
+### Keine Rückfragen zum Zeitbudget — vereinbarter Plan wird zu Ende geführt
+
+Ausdrückliche Ansage des Auftraggebers: **nie fragen, ob der Stand „für heute reicht"** oder ob man „morgen weitermacht". Solche Fragen unterstellen, das Pensum sei erreicht oder eine Pause nötig — das ist eine Bewertung der Arbeitsweise und nicht Sache des Agenten. Sie unterbrechen zudem den Fluss und kosten einen Rundlauf, obwohl der Auftrag längst klar ist.
+
+Ist ein Plan vereinbart, wird er zu Ende geführt. Eine Rückfrage ist nur berechtigt, wenn sie eine **inhaltliche** Weiche betrifft, die der Agent nicht selbst entscheiden kann (welcher Wortlaut, welches Gerät, welche von zwei fachlich gleichwertigen Lösungen).
+
+**Berichtsform beim Zwischenstand:** „erledigt: X, als Nächstes: Y" statt „soll ich weitermachen?".
+
+*Quelle: Daily-Sync 2026-08-05 (M108 in Zentrale-DiggAi-Bank).*
