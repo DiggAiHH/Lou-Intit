@@ -444,3 +444,104 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+## §X — Anhang aus Daily-Sync 2026-08-05
+
+> Diese Einträge stammen aus dem Daily-Sync vom 5. August 2026 (Bank-Commit `9b63d38`). Ausgewählt wurde nur, was in **jedem** Projekt gilt — Domänenwissen blieb in der Bank. **Reviewer-Aktion beim Merge:** in die thematisch passenden Sektionen oben einsortieren (G19–G23 zu §1 Gotchas, M06–M09 zu §2/§3). Alternativ als Sync-Anhang stehen lassen, dann bleibt die Herkunft nachvollziehbar.
+>
+> Roter Faden dieses Syncs: **Werkzeuge, die Erfolg melden und nichts bewirken.** Vier der Einträge sind derselbe Fehler in vier verschiedenen Werkzeugen.
+
+### G19 — `npm audit --omit=dev` filtert nicht zuverlässig
+
+Gemessen: `npm audit --omit=dev` lieferte **dieselben 34 Meldungen wie ohne den Schalter**, inklusive eines Pakets, das unstrittig reines Bauwerkzeug ist. Dasselbe gilt für `npm ls --omit=dev --all`. Wer sich darauf verlässt, hält Bauwerkzeug für ausgelieferten Code oder umgekehrt — hier lagen **14 von 18 hohen** Meldungen tatsächlich im Produktions-Baum.
+
+Verlässlich ist das **Lockfile** — genau daraus leitet `npm ci --omit=dev` das Produktions-Abbild ab:
+
+```python
+import json
+pkgs = json.load(open('package-lock.json'))['packages']
+prod = {}
+for pfad, info in pkgs.items():
+    if not pfad.startswith('node_modules/'): continue
+    name = pfad.split('node_modules/')[-1]
+    prod[name] = prod.get(name, False) or not (info.get('dev') or info.get('devOptional'))
+```
+
+Ein Paket gehört zur Produktion, sobald es **mindestens einen** Pfad ohne `dev`-Kennzeichen hat.
+
+**Billigste Gegenprobe:** ein Paket suchen, von dem man sicher weiß, dass es Bauwerkzeug ist — taucht es in der „Produktions"-Liste auf, filtert der Befehl nicht.
+**Nebenbefund:** `npm audit fix --package-lock-only` **ohne** `--force` brachte 34 → 7 und ließ `package.json` unverändert. ⚠️ Eine genannte „Fix-Version" kann ein **Rückschritt** sein (Artefakt der Advisory-Spannen), also vor dem Übernehmen gegen die aktuelle Version halten.
+
+### G20 — `mktemp` mit Platzhaltern in der MITTE: BSD ersetzt `XXXXXX` nur am Ende
+
+Eine Vorlage wie `job.XXXXXX.script` erzeugt unter BSD-`mktemp` (macOS) eine Datei mit dem **wörtlichen** Namen. Erster Lauf unauffällig; bleibt die Datei liegen, scheitert **jeder** weitere mit `File exists` — und der Vorgang bleibt still liegen.
+
+```bash
+# falsch (nur unter GNU-mktemp harmlos)
+tmp=$(mktemp /tmp/job.XXXXXX.script)
+# richtig, portabel
+dir=$(mktemp -d /tmp/job.XXXXXX); tmp="$dir/job.script"
+```
+
+Steckte wochenlang unentdeckt drin, weil jeder Test nur **einen** Vorgang fuhr → vgl. M08.
+
+### G21 — Ein FESTER Ersatzwert zur Verfälschung eines Zufallswerts ⇒ Flaky-Test
+
+Ein Krypto-Zweigtest ersetzte die letzten zwei Hex-Zeichen eines Chiffrats fest durch `ff`, um eine Verfälschung zu erzeugen. Endet das Chiffrat selbst auf `ff`, verändert das nichts ⇒ Test rot in rund **1 von 256** Läufen. Kostete einen Pre-Push bei 1983 grünen Tests und sieht dabei wie ein echter Regressionsfund aus.
+
+**Regel:** nie einen FESTEN Wert als Verfälschung eines Zufallswerts annehmen — den Ersatz **aus dem Ist-Wert ableiten** (Byte kippen/inkrementieren), dann ist die Verfälschung garantiert. Trifft jede Testhilfe, die „irgendetwas anderes" durch eine Konstante ausdrückt.
+
+### G22 — Verändernde Browser-Automation meldet Erfolg ohne Wirkung
+
+Drei Aufrufe an einem Vormittag meldeten Erfolg und wirkten nicht:
+
+| Handlung | meldete | tatsächlich |
+|---|---|---|
+| `resize_window` 768×1024 | „Successfully resized" | `innerWidth` blieb 1858 (maximiertes Fenster, `outerWidth` = 0) |
+| Sprache via `localStorage` | gesetzt | Auflösung ist `querystring → **cookie** → localStorage`; das Cookie schrieb den Wert beim Boot zurück |
+| Kontrast per Canvas | 12 Mängel | **4** (Canvas schwarz vorgefüllt ⇒ Deckkraft immer 255) |
+
+Fall 1 erklärte **rückwirkend**, warum Responsivität zuvor als „nicht messbar" galt: das Werkzeug meldete Erfolg statt Fehlschlag.
+
+**Regel:** jede verändernde Messung liest die Veränderung **im selben Aufruf** nach. Und bei Zustands-Auflösung über mehrere Quellen immer die Reihenfolge nachlesen, statt die bequemste Quelle zu setzen.
+
+### G23 — Zwei-Kopien-Sync: die falsche Richtung löscht die Arbeit in BEIDEN Kopien
+
+Ein Harness-Werkzeug mit `capture` (Benutzerkopie → Repo) und `install` (Repo → Benutzerkopie) wurde in der falschen Richtung aufgerufen. Zwei fertige Ergänzungen im Repo waren danach in **beiden** Kopien weg, weil die ältere Benutzerkopie darüber schrieb. Der Aufruf meldete Erfolg.
+
+**Merksatz ans Werkzeug hängen:** Repo bearbeitet ⇒ `install`. Benutzerkopie bearbeitet ⇒ `capture`. Nach jedem Lauf per `grep` auf **beiden** Seiten nachsehen. Werkzeuge, die in eine Richtung überschreiben, gehören mit Trockenlauf oder Vorab-Differenz versehen.
+
+### M06 — Eine Datei ohne Indexzeile ist wie nicht geschrieben
+
+In einem dateibasierten Gedächtnis wird pro Sitzung nur die **Index-Datei** geladen. Gemessen: **166 Dateien im Ordner, 133 Zeilen im Index** — 32 Erinnerungen lagen auf der Platte und waren unsichtbar, ausgerechnet die zur Übergabe und zum Betriebswissen.
+
+**Vor jeder Standsaufnahme und jeder Übergabe:** Dateizahl gegen Indexzeilen zählen.
+
+```bash
+ls memory/*.md | wc -l          # gegen die Zahl der Indexzeilen halten
+```
+
+Weichen sie ab, ist der Stand unvollständig — **bevor** man ihn aufschreibt. Gilt für jedes Register, das seinen Inhalt nicht selbst aufzählt: Skill-Verzeichnisse, Migrationslisten, Test-Suiten mit expliziter Dateiliste.
+
+### M07 — „Liegt nur lokal" ist eine Behauptung, kein Befund
+
+Eine bereits versionierte Datei wurde überschrieben, weil der Ordner lokal anders hieß und die Dateien im Repo **anders nummeriert** waren — byte-gleicher Inhalt, anderer Name. Zweite Ausprägung am selben Tag: ein versioniertes Dokument verwies auf einen Pfad, der wie ein Repo-Pfad aussieht, aber außerhalb lag.
+
+- Vor dem Kopieren **Inhalts-Hashes gegen den ganzen Baum** halten, nicht Dateinamen vergleichen.
+- **Ein Pfad in einem versionierten Dokument ist kein Beleg, dass die Datei versioniert ist** — einmal messen (`git ls-files <pfad>`), statt es aus dem Kontext zu schließen.
+
+Verwandter Fehler derselben Klasse: den Stand **einer** Arbeitsmaschine messen und als Gesamtstand ausgeben. Die Frage lautet nicht „was liegt hier?", sondern **„gab es für diese Art Material überhaupt je einen Kanal auf diese Maschine?"**
+
+### M08 — Ein Fehler, der erst beim ZWEITEN Lauf auftritt, ist mit EINEM Testvorgang unauffindbar
+
+Ein Durchlauf über zehn Dienste mit je eigenem Datensatz förderte drei Fehler zutage, die **alle** seit Wochen drinsteckten und **alle** diese Bauart hatten (u.a. G20, G21). Ein einzelner Testvorgang hätte keinen davon gezeigt.
+
+**Abnahme über die Matrix fahren, nicht am Beispiel:** jeden Dienst/Pfad einmal echt durchspielen, mit je eigenem Datensatz — und mindestens einen Pfad **zweimal hintereinander ohne Aufräumen**. Idempotenz und Wiederholbarkeit sind eine eigene Testdimension, keine Folge eines grünen Erstlaufs.
+
+### M09 — Zu jeder Positiv-Messung gehört die Gegenrichtung
+
+Eine Zustandserkennung war als „belegt" gemeldet worden — gemessen war nur **eine** Richtung. Tatsächlich stimmte die Abfrage nur für die Vordergrund-Anwendung; lag die Gegenseite im Hintergrund, galt das fehlende Merkmal als Beweis für den Negativzustand. Folge: **jeder** Vorgang blieb mit einer überzeugend klingenden, falschen Begründung liegen.
+
+Ein Prädikat gilt erst als belegt, wenn **beide** Richtungen gemessen sind: der Positivfall *und* mindestens ein Fall, in dem es `false` liefern muss und tatsächlich liefert. Besonders bei Erkennungen, deren Negativausgang einen stillen Halt auslöst — dort ist ein falsches `false` teurer als ein Absturz, weil es sich als Diagnose tarnt.
+
+*Quelle: Daily-Sync 2026-08-05 (G197/G201/G202/G203/G205 + M104–M107 in Zentrale-DiggAi-Bank).*
