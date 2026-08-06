@@ -444,3 +444,30 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+---
+
+## §X — Anhang aus Daily-Sync 2026-08-06
+
+Zehn Einträge in die Zentrale-DiggAi-Bank (Commit `ba75ca4`), davon acht projektunabhängig. Der Tagesbefund in einem Satz: **eine Anzeige, die Vollzug meldet, ohne einen Beleg dafür zu haben, ist schlimmer als gar keine Anzeige.**
+
+### Fortschritts- und Statusanzeigen
+
+- **Ein Erfolgs-Flag entsteht aus der ausgewerteten RÜCKGABE, nie daraus, dass ein Aufruf zurückkam.** Ein Schritt setzte sein Flag bedingungslos nach dem Aufruf — auch wenn dessen Rückgabe „nichts getan" lautete. Die Oberfläche versprach ein Ergebnis, das es nie gab. Wo die Rückgabe „nichts getan" sagt, ist die richtige Anzeige **gar keine Aussage**, nicht die positive. (Bank: G207)
+- **„Übersprungen" ist kein sauberer Abschluss.** Fehlte die Voraussetzung für die letzten Schritte, standen sie auf `uebersprungen` — was in der Fortschrittsrechnung als fertig zählte und 100 % samt Bestätigungssatz ergab. „Entfällt planmäßig" und „durchgelaufen, aber unbelegt" sind ZWEI Zustände. Merksatz: **jeder Zustand, der als „fertig" mitzählt, braucht einen Beleg — sonst ist er ein Loch mit Häkchen.** (Bank: G208)
+
+### Messen und Zählen
+
+- **Wer Läufe zählen will, gibt jedem Lauf einen eigenen Idempotenz-Schlüssel.** Zwei vollständige Durchläufe ergaben in der Gegenprobe nur einen Datensatz — kein Defekt: alle Testdaten stammten aus derselben Vorlage, trugen dieselbe Zeitmarke, und die Gegenseite dedupliziert genau darüber. Vor jeder Zähl-Messung klären, worüber das Zielsystem dedupliziert, und diesen Schlüssel bewusst variieren. (Bank: G209)
+- **Wenn der Oberflächen-Weg zu ist, eine Ebene tiefer messen — und die echten Artefakte wörtlich als Testdaten einfrieren.** Browser-Erweiterung am falschen Rechner, eingebaute Ansicht nicht einblendbar, OS-Dateidialog über Rechner-Steuerung prinzipiell nicht bedienbar (Browser = Tier „read", vgl. G07). Statt weiter an der Oberfläche zu ziehen: das Verbindungsstück direkt gegen das Zielsystem fahren, Erfolgs- UND Fehlerlauf, und die dabei real entstandenen Artefakte als Fixtures einfrieren. Ebenso wichtig: **was dabei nicht gemessen wurde, wird als nicht gemessen ausgewiesen.** (Bank: W82)
+
+### Werkzeugfallen
+
+- **Python-Textmodus wandelt `\r\n` still in `\n`.** Ein `open(pfad, encoding='…')` ohne `newline=''` schaltet universal newlines ein; ein nachfolgendes `split('\r\n')` liefert dann EINE Zeile und findet kein Feld — ohne Fehler, ohne Ausnahme. **Wer nach `\r\n` trennt, darf die Datei nicht im Textmodus geöffnet haben.** (Bank: G206)
+- **Aus der Lint-Zusammenfassung die FEHLERZAHL lesen, nicht die Gesamtzahl.** „13 problems (2 errors, 11 warnings)" sieht „11 problems (0 errors, 11 warnings)" zum Verwechseln ähnlich — und kippte den Pre-Commit-Hook. Wo möglich `--max-warnings=0`, dann entfällt die Unterscheidung. Regel-Schwere nie raten: Regeln um Escapes und Leerzeichen sind je nach Voreinstellung Fehler, nicht Warnungen. (Bank: G210)
+- **Prüfen, WELCHE der beiden Web-Storages das Test-Setup abdeckt.** War nur `localStorage` gestubbt, schrieb ein Feature mit `sessionStorage` in echten Speicher und färbte den nächsten Testfall ein. Gegenstück zum umgekehrten Fall (Setup stubbt beide mit No-op-Mocks und macht Persistenz-Tests fälschlich rot). (Bank: G211, G131)
+
+### Arbeitsweise
+
+- **Eine bewusste Ausnahme von einer projektweiten Regel ohne Test ist eine Bitte.** Drei Dinge halten sie zusammen: Begründung im Änderungsprotokoll, Erwartungs-Hinweis am Fundort („wer den Check hier laufen lässt, bekommt Treffer — diese sind erwartet"), und ein zeichengleicher Test, der den Rückbau bestraft. Ohne (2) und (3) räumt ein späterer Lauf die Ausnahme pflichtbewusst weg — und der Rückbau sieht dabei aus wie eine Verbesserung. Gilt für jede abgeschaltete Lint-Regel, jede Ausnahmeliste und jeden Wortlaut, der genau so lauten muss. (Bank: M109)
+- **Beim Einhängen in fremde Verschachtelung: Rückbau plus additive Hülle statt Umbau.** Wer eine bestehende Bedingungskette auseinandernimmt, um etwas ANZUHÄNGEN, löst die falsche Aufgabe. Und ein misslungener Umbau wird zurückgenommen, nicht nachgebessert — das Nachbessern kostet mehr und hinterlässt Reste, die im Diff untergehen. Der Rückbau ist erst belegt, wenn `git diff --stat` ihn zeigt. (Bank: M110)
