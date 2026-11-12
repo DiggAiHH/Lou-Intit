@@ -444,3 +444,37 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+## §X - Anhang aus Daily-Sync 2026-11-12
+
+Generische Learnings aus der Zentrale-DiggAi-Bank (Volltext dort unter den IDs). Gelten fuer jedes Projekt.
+
+### M154 - Abweisung durch den Berechtigungswaechter nicht umgehen
+
+Weist der Berechtigungswaechter der Agenten-Sitzung eine Aktion ab (Produktiv-Deploy ohne ausdrueckliches Owner-Wort, SSH-Admin-Aufruf, Umbau installierter Apps), wird sie NICHT ueber einen anderen Befehl/ein anderes Skript erzwungen. Alles bis zum letzten Schritt vorbereiten, dann Owner fragen oder ihm die Aktion zum Selbst-Ausfuehren uebergeben. Im Lauf-Log festhalten.
+
+### M156 - Ist die Quelle unvollstaendig: letztes gutes Ergebnis patchen statt neu erzeugen
+
+Generatoren, die aus Netz-Quellen bauen, bekommen einen `--bestand`-Modus. Leere Listen OHNE Fehler sind ein Warnsignal. Vor jedem Neubau Anzahl neu vs. alt vergleichen - weniger = Abbruch. Nach dem Hochladen Rueckkopie byte-vergleichen.
+
+### M155 - Bot-Schutz fremder Quellen respektieren
+
+Gesperrte Quellen nicht umgehen: einzeln mit Pause pruefen, Mensch laedt herunter, Agent ordnet ein. Aktualitaet aus Metadaten (Datum im Dateinamen + Gueltigkeit) statt aus Live-Abfrage.
+
+### F103 - Bauausgaben nie nach /dev/null leiten
+
+Ein Waechter, dessen Meldung niemand liest, ist keiner. Ausgabe hoechstens in Logdatei, Exit-Code UND Ergebnisdatei pruefen (`set -e`, `test -s`).
+
+### W131 - Parallel-Sitzungen: jede in eigenem git-worktree
+
+Mehrere Agenten im selben Checkout = unklarer Live-Stand. Jede Sitzung: eigener `git worktree` auf origin/main, nur eigene Pfade stagen, Deploy-Sperre abwarten. Achtung (G369): `node_modules` im Worktree nicht verlinken, sondern klonen (macOS `cp -cR`), sonst blockt Vite `?url`-Importe.
+
+### W130 - Desktop-Automation erst bei Leerlauf des Menschen
+
+Vor Bedien-Sequenzen Eingabe-Leerlauf messen (macOS `ioreg -c IOHIDSystem | grep HIDIdleTime`) oder "Rechner frei?" fragen. Fenster-Screenshots nur per Fenster-ID (keine fremden Titel mit Personendaten).
+
+### G368 - Nach Docker-/Daemon-Updates aktiv pruefen, ob alles laeuft
+
+`restart: unless-stopped` holt einen beim Daemon-Start gescheiterten Container nicht zurueck, `docker start` stellt Portbindungen nicht wieder her. Fix: `docker compose up -d --force-recreate <dienst>`.
+
+---
