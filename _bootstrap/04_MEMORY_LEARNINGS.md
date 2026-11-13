@@ -444,3 +444,21 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+## §X - Anhang aus Daily-Sync 2026-11-13
+
+Generische Learnings aus der Zentrale-DiggAi-Bank (Volltext dort unter den IDs). Gelten fuer jedes Projekt.
+
+### G385 - Neue Daten nicht als Feld in eine gemeinsam geschriebene Datei haengen
+
+Schreiben mehrere Arbeitsplaetze dieselbe JSON-Datei und laeuft irgendwo noch eine aeltere Programmfassung, schreibt diese die Datei ohne das neue Feld zurueck - die Daten sind still weg. Neue Daten in eine eigene Datei legen, solange alte Fassungen im Umlauf sein koennen.
+
+### G387 - Erwartungen aus verschiedenen Ladevorgaengen in EIN waitFor
+
+Laedt eine Ansicht zwei Dinge getrennt, reicht es nicht, auf eines zu warten und das andere direkt zu lesen: einzeln gruen, in der vollen Suite unter Last rot. Alle abhaengigen Erwartungen gemeinsam abwarten, danach mehrfach einzeln und einmal in der vollen Suite laufen lassen.
+
+### G388 - Im Browser-Pruefskript auf Zustandsaenderung warten, nicht auf Meldungstext
+
+Eine Erfolgsmeldung kann noch von der vorigen, gleichartigen Aktion dastehen - das Warten ist dann sofort erfuellt und das Skript liest zu frueh. Auf etwas warten, das nur die neue Aktion ausloest (Knopf verschwindet, Zaehler aendert sich).
+
+---
