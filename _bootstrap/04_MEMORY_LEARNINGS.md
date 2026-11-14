@@ -444,3 +444,33 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+## §X - Anhang aus Daily-Sync 2026-11-14
+
+Generische Learnings aus der Zentrale-DiggAi-Bank (Volltext dort unter den IDs). Gelten fuer jedes Projekt.
+
+### F105 - Was ein Recht braucht, bleibt sichtbar und nennt den Grund
+
+Eine Schaltflaeche, die ohne Berechtigung einfach verschwindet oder grau wird, sieht fuer den Nutzer aus wie eine verlorene Funktion. Sichtbar lassen; ohne Recht klappt beim Klick ein Hinweis auf, wer es darf und wo man sich ausweist.
+
+### M158 - Vor dem Umbau einer Oberflaeche Fassungen als Bild zeigen
+
+Bei Wuenschen zu Anordnung oder Beschriftung zwei bis drei Fassungen aus einem Pruefbau als Bild vorlegen, die des Nutzers immer dabei. Erst nach der Wahl fertig bauen (Uebersetzungen, Tests) und einspielen - spart Umbauten in Folge.
+
+### M159 - Im Standardbrowser des Nutzers pruefen
+
+Bei "geht bei mir nicht" zuerst feststellen, womit der Nutzer die Sache oeffnet (Doppelklick = Standardbrowser, nicht der eigene Pruefbrowser), und den Bedienweg genau dort nachstellen. Was nur in einem anderen Browser gemessen ist, als UNGEMESSEN fuehren.
+
+### G396 - Pruefskript: Ausgangszustand vor jedem Schritt ausdruecklich setzen
+
+Im Browser gemerkte Auswahl aus dem ersten Durchgang (z.B. eine Person ohne Berechtigung) laesst im zweiten Elemente fehlen - das sieht wie ein Fehler der Anwendung aus. Bei "Element fehlt" zuerst fragen, ob es in diesem Zustand fehlen soll.
+
+### W135 - Langsame Quelle: letzten Stand sofort zeigen, im Hintergrund auffrischen
+
+Dauert das Lesen (Netzordner ueber VPN) viele Sekunden, den zuletzt gelesenen Stand im Browser merken, sofort mit "Stand vom ..." zeigen und waehrend des Auffrischens Symbol und Zaehler laufen lassen. Scheitert das Auffrischen, bleibt der Stand mit Hinweis stehen.
+
+### W138 - Stand einer weitergegebenen Datei sichtbar in die Datei schreiben
+
+Wird eine Datei mehrmals am Tag neu gebaut und an mehreren Orten abgelegt, Datum und Uhrzeit des Baus dauerhaft sichtbar einblenden. Ueberholte Fassungen mit aehnlichem Namen wegraeumen, nicht daneben liegen lassen.
+
+---
