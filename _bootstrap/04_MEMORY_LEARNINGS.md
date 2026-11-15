@@ -444,3 +444,33 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+## §X - Anhang aus Daily-Sync 2026-11-15
+
+Generische Learnings aus der Zentrale-DiggAi-Bank (Volltext dort unter den IDs). Gelten fuer jedes Projekt.
+
+### G399 - "Gemerkten Stand sofort zeigen" braucht einen Zaehler je Speichern
+
+Wer zuerst den zuletzt gelesenen Stand zeigt und im Hintergrund frisch liest, bekommt ein Rennen: Speichert der Nutzer, waehrend das Lesen noch laeuft, erscheint danach der Stand von vor dem Speichern. Je Speichern einen Zaehler hochzaehlen; hat er sich waehrend des Lesens geaendert, noch einmal lesen und nichts merken. Rechte immer gegen den frischen Stand pruefen.
+
+### G400 - Zweistufiges Lesen im Test
+
+Ein Merkspeicher, der am Namen haengt, wandert von Test zu Test - im `beforeEach` leeren. Ersetzte Lesebausteine werden zweimal gefragt: fuer dauerhafte Fehler `mockRejectedValue` statt `...Once`.
+
+### G405 - Beschriftung nicht um ein Auswahlfeld legen
+
+Liegt das `<label>` um ein `<select>`, zaehlen alle Optionen zum zugaenglichen Namen - Vorleseprogramme und Tests finden das Feld nicht sauber. Beschriftung und Feld ueber `htmlFor`/`id` verbinden.
+
+### G403 - `scrollIntoView` im iframe bewegt auch die aeussere Seite
+
+In Automatisierung und Aufnahmen im eingebetteten Dokument nur dessen eigenes Dokument bewegen (`scrollingElement.scrollTo`).
+
+### W142 - Daten mit den Bausteinen der Anwendung eintragen, erst in einer Kopie
+
+Einmalige Uebernahmen nicht als handgeschriebenes JSON, sondern ueber dieselben Speicherfunktionen wie die Oberflaeche. Erst gegen eine Kopie des Zielordners, dann echt. Interne Schluessel der Quelle je Rechner nachschlagen, nie aus Notizen uebernehmen (G406).
+
+### F106 - Erfahrungsaussagen des Auftraggebers nicht still abschwaechen
+
+Bei Texten des Auftraggebers Tatsachen ueber das eigene Programm gegen den Code pruefen und berichtigen (M131). Seine Wertungen als seine Erfahrung kennzeichnen und stehen lassen; Bedenken einmal melden.
+
+---
