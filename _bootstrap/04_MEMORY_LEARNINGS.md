@@ -444,3 +444,25 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+## §X - Anhang aus Daily-Sync 2026-11-16
+
+Generische Learnings aus der Zentrale-DiggAi-Bank (Volltext dort unter den IDs). Gelten fuer jedes Projekt.
+
+### F107 - Eine Reparatur, die nur als "Fremd-WIP, nicht anfassen" in der Uebergabe steht, kann Ausgeliefertes monatelang kaputt lassen
+
+Abnahme gegen das LIVE geladene Paket fahren, nicht gegen den Bau. Eine Fremd-WIP-Liste, die ueber Tage unveraendert weitergereicht wird, ist selbst ein Befund: je Eintrag klaeren, ob er eine Reparatur fuer etwas Ausgeliefertes enthaelt, und den Owner fragen.
+
+### G407 - Aus dem Repo geloescht ist nicht offline
+
+Wenn der Deploy Live-Dateien bewahrt, die im Bau fehlen (z.B. fuer alte Bauteile oder einen grossen Speicher), bleibt eine entfernte Download-Datei erreichbar. Gezielt auf dem Server loeschen und den 404 messen.
+
+### G408 - Soll-Fassung fuer die Waechter bestehender Installationen nur anheben, wenn die etwas tun muessen
+
+Lesen installierte Waechter ihre Soll-Fassung aus einer veroeffentlichten Datei, loest jedes Anheben ueberall "neue Fassung" aus. Neukunden-Paket und Soll-Fassung getrennt entscheiden; Anheben ist eine Owner-Entscheidung.
+
+### W143 - Import-Dateien einer Fremdanwendung aus deren Datenbank erzeugen
+
+Nur lesend oeffnen (SQLite `mode=ro`), den Generator erst am EINEN echten Export abnehmen (inhaltsgleich), dann die uebrigen Typen erzeugen. Kennungen, die je Installation verschieden sind, auf dem Zielrechner auslesen statt fest eintragen.
+
+---
