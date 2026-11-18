@@ -444,3 +444,17 @@ Operator klickt nur wenn nötig (max 1 Klick, alles vorbereitet). Agent macht gi
 Niemals `.bat`-Files zum manuellen Ausführen vorbereiten — wenn etwas geklickt werden muss, sagt Agent EXAKT welcher Button.
 
 ---
+
+
+---
+
+## §X - Anhang aus Daily-Sync 2026-11-18
+
+Generische Learnings aus der Zentrale-DiggAi-Bank (Commit 196807d). Vollfassung dort unter `KNOWLEDGE/`.
+
+- **G409 - Ordner hinter gemerktem Browser-Ordnerzugriff weg:** Chrome meldet fuer jede Datei `NotFoundError`, wie "Datei fehlt". Bei `NotFoundError` pruefen, ob der Ordner selbst noch aufzaehlbar ist; sonst "Ordner nicht erreichbar" melden und den gemerkten Stand nie mit leer ueberschreiben.
+- **G410 - `ffmpeg` in `while read`-Schleifen:** liest stdin mit und zerschneidet die Liste. Immer `-nostdin` oder `</dev/null`; gilt auch fuer `ssh`, `docker exec -i`.
+- **G411 - Negativtests auf Seitenebene:** "kein Verweis auf X" trifft den Menuepunkt in Kopf/Fuss, Zaehltests treffen verschachtelte Elemente gleichen Typs. Selektor auf `main` bzw. ein eigenes Merkmal (`id^=`) begrenzen.
+- **F108 - Zwei Sitzungen, zwei Dienste fuer dieselbe Aufgabe:** Der Testbeleg kam vom fremden Dienst. Vor dem Anlegen und vor jedem Beleg auflisten, was geladen ist; Doppelung entladen und in "deaktiviert-<datum>" verschieben.
+- **W145 - Netzlaufwerk-Wache:** nur einbinden, wenn Port offen und Zugang gespeichert (kein Anmeldefenster), Pause nach Fehlversuch, `--probe`-Modus ohne Trennen. Beleg erst nach echtem Abriss.
+- **W144 - Vertonung laenger als Film:** Tempo fest lassen, Ueberhang mit Standbild am Ende auffangen (mit Obergrenze). Aussprache bleibt ungemessen, bis ein Mensch reingehoert hat.
